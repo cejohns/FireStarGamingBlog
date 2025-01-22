@@ -1,0 +1,79 @@
+/* About Page CSS */
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #000000;
+    color: #FFFFFF;
+}
+
+header {
+    position: sticky;
+    top: 0;
+    background: #1C1C1C;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+header .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+header nav a {
+    text-decoration: none;
+    color: #FFFFFF;
+    margin: 0 10px;
+    transition: color 0.3s;
+}
+
+header nav a:hover {
+    color: #00AEEF;
+}
+
+main {
+    padding: 20px;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+.mission-statement {
+    background: #1C1C1C;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.team-section {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.team-member {
+    background: #1C1C1C;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    width: calc(33.333% - 20px);
+    box-sizing: border-box;
+}
+
+.team-member img {
+    width: 100%;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+footer {
+    background: #1C1C1C;
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid #333333;
+}

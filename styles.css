@@ -1,0 +1,181 @@
+/* Reset and global styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #000000;
+    color: #FFFFFF;
+    line-height: 1.6;
+}
+
+:root {
+    --primary-color: #00AEEF;
+    --background-color: #000000;
+    --text-color: #FFFFFF;
+    --secondary-color: #1C1C1C;
+    --hover-glow: 0 0 10px #00AEEF;
+}
+
+/* Header */
+header {
+    position: sticky;
+    top: 0;
+    background: var(--background-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+header .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+header .logo img {
+    height: 50px;
+    width: auto;
+}
+
+header .logo span {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+header nav {
+    display: flex;
+    gap: 15px;
+}
+
+header nav a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+header nav a:hover, header nav a.active {
+    color: var(--primary-color);
+}
+
+/* Hero Section */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    background: url('images/esports-hero.jpg') center/cover no-repeat;
+    color: var(--text-color);
+    text-align: center;
+    padding: 20px;
+    position: relative;
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5); /* Overlay for better text contrast */
+}
+
+.hero h1 {
+    font-size: 48px;
+    margin: 0;
+    z-index: 1; /* Keeps the text above the overlay */
+}
+
+
+
+/* Section and Articles */
+.sections {
+    padding: 20px;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+.section h2 {
+    font-size: 28px;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.article-card {
+    background: var(--secondary-color);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s;
+}
+
+.article-card:hover {
+    transform: scale(1.05);
+    box-shadow: var(--hover-glow);
+}
+
+.article-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.article-card .content {
+    padding: 15px;
+}
+
+.article-card .content h3 {
+    font-size: 20px;
+    margin: 0 0 10px;
+}
+
+.article-card .content small {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 10px;
+    color: #CCCCCC;
+}
+
+.article-card .content p {
+    font-size: 14px;
+    margin: 0 0 15px;
+}
+
+.article-card .read-more {
+    text-decoration: none;
+    color: var(--primary-color);
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.article-card .read-more:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+.footer {
+    background: var(--background-color);
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid var(--secondary-color);
+}
+
+.footer p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-color);
+}

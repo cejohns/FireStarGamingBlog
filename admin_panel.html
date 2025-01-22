@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Firestar Gaming</title>
+    <script type="module" src="adminApi.js"></script>
+
+    <link rel="stylesheet" href="admin_panel.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span>Firestar Gaming Admin</span>
+        </div>
+        <nav>
+            <a href="index.html">View Website</a>
+            <a href="logout.html">Logout</a>
+        </nav>
+    </header>
+
+    <aside class="sidebar">
+        <ul>
+            <li><a href="#dashboard">Dashboard</a></li>
+            <li><a href="#content-management">Content Management</a></li>
+            <li><a href="#analytics">Analytics</a></li>
+            <li><a href="#comments-moderation">Comments Moderation</a></li>
+        </ul>
+    </aside>
+
+    <main>
+        <section id="dashboard">
+            <h1>Dashboard</h1>
+            <p>Welcome, Admin! Here's a summary of the website activity.</p>
+        </section>
+
+        <section id="content-management">
+            <h2>Content Management</h2>
+            <button id="add-post">Add New Post</button>
+            <div class="posts">
+                <!-- List of posts fetched from the backend -->
+            </div>
+        </section>
+
+        <section id="analytics">
+            <h2>Analytics</h2>
+            <p>Website stats will be displayed here.</p>
+        </section>
+
+        <section id="comments-moderation">
+            <h2>Comments Moderation</h2>
+            <div class="comments">
+                <!-- List of comments fetched from the backend -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Firestar Gaming. Admin Panel.</p>
+    </footer>
+</body>
+</html>

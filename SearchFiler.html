@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search and Filter - Firestar Gaming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="search.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/logo.png" alt="Firestar Gaming Logo">
+            <span>Firestar Gaming</span>
+        </div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="categories.html">Categories</a>
+            <a href="about.html">About Us</a>
+            <a href="contact.html">Contact</a>
+            <a href="search.html" class="active">Search</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="search-bar">
+            <h1>Search Articles</h1>
+            <input type="text" id="search-input" placeholder="Search by title or keyword...">
+        </section>
+
+        <section class="filters">
+            <h2>Filter Articles</h2>
+            <form id="filter-form">
+                <label for="category">Category:</label>
+                <select id="category">
+                    <option value="all">All</option>
+                    <option value="video-games">Video Games</option>
+                    <option value="game-development">Game Development</option>
+                    <option value="new-tech">New Tech</option>
+                </select>
+
+                <label for="date-range">Date Range:</label>
+                <input type="date" id="start-date">
+                <input type="date" id="end-date">
+
+                <label for="popularity">Popularity:</label>
+                <select id="popularity">
+                    <option value="all">All</option>
+                    <option value="most-popular">Most Popular</option>
+                    <option value="least-popular">Least Popular</option>
+                </select>
+
+                <button type="submit">Apply Filters</button>
+            </form>
+        </section>
+
+        <section class="search-results">
+            <h2>Results</h2>
+            <div id="results-container">
+                <!-- Articles will be dynamically inserted here -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Firestar Gaming. All Rights Reserved.</p>
+    </footer>
+
+    <script src="search.js"></script>
+</body>
+</html>

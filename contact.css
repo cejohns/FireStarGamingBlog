@@ -1,0 +1,57 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    background-color: #000000;
+    color: #FFFFFF;
+}
+
+header, footer {
+    background: #1C1C1C;
+    padding: 20px;
+    text-align: center;
+    color: #FFFFFF;
+}
+
+header nav a {
+    text-decoration: none;
+    color: #FFFFFF;
+    margin: 0 15px;
+    font-weight: 700;
+}
+
+header nav a.active {
+    color: #00AEEF;
+}
+
+.contact-form, .social-media, .business-email {
+    background: #1C1C1C;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.contact-form h1, .social-media h2, .business-email h2 {
+    color: #00AEEF;
+}
+
+input, textarea, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button {
+    background: #00AEEF;
+    color: #FFFFFF;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #007BFF;
+}
