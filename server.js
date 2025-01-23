@@ -12,14 +12,19 @@ const fs = require('fs');
 const httpsRedirect = require('./middlewares/httpsRedirect');
 
 const mongoose = require('mongoose');
-
+require('dotenv').config(); // Load environment variables from .env file
 // Load environment variables
-dotenv.config();
+//dotenv.config();
 
 const MONGO_URI = process.env.MONGO_URI;
+if (!MONGO_URI) {
+    console.error('Error: MONGO_URI is not defined in the .env file');
+    process.exit(1); // Exit the app if MONGO_URI is missing
+}
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const HTTP_PORT = process.env.PORT || 3000;
 const HTTPS_PORT = process.env.HTTPS_PORT || 3001;
+console.log(process.env);
 
 // Initialize Express app
 const app = express();
