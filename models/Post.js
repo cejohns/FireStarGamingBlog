@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Post = require('../models/Post');
 const router = express.Router();
+const mongoose = require('mongoose');
 
 // Validation rules for creating a new post
 router.post(
@@ -33,10 +34,10 @@ router.post(
         }
 
         // Create a new post if validation passes
-        const { title, summary, content } = req.body;
+        const { title, summary, content, category } = req.body;
 
         try {
-            const newPost = new Post({ title, summary, content });
+            const newPost = new Post({ title, summary, content, category });
             await newPost.save();
             res.status(201).json({ message: 'Post created successfully', post: newPost });
         } catch (err) {
