@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3001"; // Changed to HTTP for development
+const API_BASE_URL = "https://localhost:3001"; // Changed to HTTP for development
 
 // Fetch all blog posts
 async function fetchPosts() {

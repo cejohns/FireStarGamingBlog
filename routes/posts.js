@@ -4,74 +4,60 @@ const Post = require('../models/Post');
 const { body, validationResult } = require('express-validator');
 
 // Validation middleware
+// Middleware for validation
 const validatePost = [
-    body('title')
-        .isString().withMessage('Title must be a string')
-        .isLength({ min: 5 }).withMessage('Title must be at least 5 characters long')
-        .trim(),
-    body('summary')
-        .isString().withMessage('Summary must be a string')
-        .isLength({ min: 10 }).withMessage('Summary must be at least 10 characters long')
-        .trim(),
-    body('content')
-        .isString().withMessage('Content must be a string')
-        .isLength({ min: 20 }).withMessage('Content must be at least 20 characters long')
-        .trim(),
-    body('category')
-        .isString().withMessage('Category must be a string')
-        .notEmpty().withMessage('Category is required')
-        .trim()
-];
-
-// Fetch all posts
-router.get('/', async (req, res) => {
-    try {
-        const posts = await Post.find().sort({ createdAt: -1 });
-        res.json(posts);
-    } catch (err) {
-        console.error('Error fetching posts:', err);
-        res.status(500).json({ error: "Failed to fetch posts" });
-    }
-});
-
-// Add a new post
-router.post('/', validatePost, async (req, res) => {
-    try {
-        console.log('Received post request:', req.body); // Debug log
-
-        // Check for validation errors
+    body('title').isString().withMessage('Title must be a string'),
+    body('summary').isString().withMessage('Summary must be a string'),
+    body('content').isString().withMessage('Content must be a string'),
+    body('category').isString().withMessage('Category must be a string'),
+    (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ error: errors.array()[0].msg });
+            return res.status(400).json({ errors: errors.array() });
+        }
+        next();
+    },
+];
+
+router.post(
+    '/',
+    [
+        body('title').isString().withMessage('Title must be a string'),
+        body('summary').isString().isLength({ min: 10 }).withMessage('Summary must be at least 10 characters'),
+        body('content').isString().isLength({ min: 20 }).withMessage('Content must be at least 20 characters'),
+        body('category').isString().withMessage('Category must be a string'),
+    ],
+    async (req, res) => {
+        console.log('Request body:', req.body);
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
 
         const { title, summary, content, category } = req.body;
-        
-        // Additional validation
-        if (!title || !summary || !content || !category) {
-            return res.status(400).json({ 
-                error: 'Missing required fields',
-                received: { title, summary, content, category }
-            });
-        }
 
+        try {
+            const newPost = new Post({ title, summary, content, category });
+            const savedPost = await newPost.save();
+            res.status(201).json({ message: 'Post created successfully', post: savedPost });
+        } catch (err) {
+            console.error('Error saving post:', err.message);
+            res.status(500).json({ error: 'Failed to add post. Please try again.', details: err.message });
+        }
+    }
+);
+
+// Add a new post
+router.post('/', validatePost, async (req, res) => {
+    const { title, summary, content, category } = req.body;
+
+    try {
         const newPost = new Post({ title, summary, content, category });
-        console.log('Creating new post:', newPost); // Debug log
-        
         const savedPost = await newPost.save();
-        console.log('Post saved successfully:', savedPost); // Debug log
-        
-        res.status(201).json({
-            success: true,
-            message: 'Post created successfully',
-            post: savedPost
-        });
+        res.status(201).json({ message: 'Post created successfully', post: savedPost });
     } catch (err) {
-        console.error('Error saving post:', err);
-        res.status(500).json({ 
-            error: 'Failed to add post. Please try again.',
-            details: err.message 
-        });
+        console.error('Error saving post:', err.message);
+        res.status(500).json({ error: 'Failed to add post' });
     }
 });
 
@@ -81,7 +67,7 @@ router.put('/:id', validatePost, async (req, res) => {
         const { id } = req.params;
         const { title, summary, content, category } = req.body;
         
-        const errors = validationResult(req);
+        const errors = validatePostS(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ error: errors.array()[0].msg });
         }
