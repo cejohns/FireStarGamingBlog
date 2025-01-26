@@ -30,8 +30,9 @@ export const addPost = async (postData) => {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(postData),
             credentials: "include",
+            body: JSON.stringify(postData),
+            
         });
 
         if (!response.ok) {

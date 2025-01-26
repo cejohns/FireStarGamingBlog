@@ -8,6 +8,8 @@ const analyticsRoutes = require('./routes/analytics');
 const commentsRoutes = require('./routes/comments');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const https = require('https');
+const fs = require('fs');
 
 // Load environment variables
 require('dotenv').config();
@@ -27,8 +29,31 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// CORS configuration
-app.use(cors({ origin: 'http://127.0.0.1:5500' })); // Adjust origin to your frontend
+// Enable CORS with specific options
+app.use(
+    cors({
+        origin: 'http://127.0.0.1:5500', // Replace with the origin of your frontend
+        credentials: true, // Allow cookies and credentials
+        methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+    })
+);
+
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'http://127.0.0.1:5500'); // Allow your frontend origin
+    res.header('Access-Control-Allow-Credentials', 'true'); // Allow credentials
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // Allowed HTTP methods
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Allowed headers
+    next();
+});
+
+app.options('*', (req, res) => {
+    res.header('Access-Control-Allow-Origin', 'http://127.0.0.1:5500');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.sendStatus(200);
+});
+
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -65,7 +90,19 @@ app.get('/', (req, res) => {
     res.json({ message: 'Firestar Gaming API is running' });
 });
 
+// Read SSL certificate and key
+const httpsOptions = {
+    key: fs.readFileSync('server.key'), // Private key file path
+    cert: fs.readFileSync('server.cert'), // Certificate file path
+    secureProtocol: 'TLSv1_2_method',
+};
+
 // Start server
-app.listen(PORT, () => {
+/*app.listen(PORT, () => {
     console.log(`Server running in ${NODE_ENV} mode on port ${PORT}`);
+});*/
+
+// Start HTTPS server
+https.createServer(httpsOptions, app).listen(3001, () => {
+    console.log('HTTPS server running on port 3001');
 });
