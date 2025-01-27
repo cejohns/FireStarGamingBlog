@@ -9,11 +9,67 @@ async function fetchPosts() {
             throw new Error(errorData.error || "Failed to fetch posts");
         }
         return await response.json();
+        const posts = await response.json();
+        renderPosts(posts);
     } catch (error) {
         console.error("Error fetching posts:", error);
         throw error;
     }
 }
+
+// Render posts in the DOM
+function renderPosts(posts) {
+    const container = document.getElementById('posts-container');
+    container.innerHTML = ''; // Clear previous content
+
+    posts.forEach((post) => {
+        const postElement = document.createElement('div');
+        postElement.classList.add('post');
+        postElement.innerHTML = `
+            <h3>${post.title}</h3>
+            <p><strong>Category:</strong> ${post.category}</p>
+            <p><strong>Summary:</strong> ${post.summary}</p>
+            <button class="edit-post" data-id="${post._id}">Edit</button>
+            <button class="delete-post" data-id="${post._id}">Delete</button>
+        `;
+        container.appendChild(postElement);
+    });
+
+    // Attach event listeners for edit and delete buttons
+    document.querySelectorAll('.edit-post').forEach((button) =>
+        button.addEventListener('click', handleEditPost)
+    );
+    document.querySelectorAll('.delete-post').forEach((button) =>
+        button.addEventListener('click', handleDeletePost)
+    );
+}
+
+// Handle editing a post
+function handleEditPost(event) {
+    const postId = event.target.getAttribute('data-id');
+    // Logic for editing a post (e.g., prefill form fields)
+    console.log(`Edit post: ${postId}`);
+}
+
+// Handle deleting a post
+async function handleDeletePost(event) {
+    const postId = event.target.getAttribute('data-id');
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/posts/${postId}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to delete post: ${response.status}`);
+        }
+        console.log(`Post ${postId} deleted successfully`);
+        fetchPosts(); // Refresh the post list
+    } catch (error) {
+        console.error('Error deleting post:', error);
+    }
+}
+
+// Fetch posts when the page loads
+fetchPosts();
 
 // Add a new blog post
 export const addPost = async (postData) => {

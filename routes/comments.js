@@ -12,6 +12,22 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.post('/:id/comments', async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+        const comment = { text: req.body.text, createdAt: new Date() };
+        post.comments.push(comment);
+        await post.save();
+        res.status(201).json({ message: 'Comment added successfully', comment });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to add comment' });
+    }
+});
+
+
 // Approve a comment
 router.post('/approve', async (req, res) => {
     const { commentId } = req.body;

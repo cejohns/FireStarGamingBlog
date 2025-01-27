@@ -19,7 +19,7 @@ const validatePost = [
     },
 ];
 
-router.post(
+/*router.post(
     '/',
     [
         body('title').isString().withMessage('Title must be a string'),
@@ -45,7 +45,19 @@ router.post(
             res.status(500).json({ error: 'Failed to add post. Please try again.', details: err.message });
         }
     }
-);
+);*/
+
+// GET /api/posts - Retrieve all posts
+router.get('/', async (req, res) => {
+    try {
+        const posts = await Post.find();
+        res.status(200).json(posts);
+    } catch (err) {
+        console.error('Error fetching posts:', err);
+        res.status(500).json({ error: 'Failed to fetch posts' });
+    }
+});
+
 
 // Add a new post
 router.post('/', validatePost, async (req, res) => {
@@ -67,7 +79,7 @@ router.put('/:id', validatePost, async (req, res) => {
         const { id } = req.params;
         const { title, summary, content, category } = req.body;
         
-        const errors = validatePostS(req);
+        const errors = validatePost(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ error: errors.array()[0].msg });
         }
