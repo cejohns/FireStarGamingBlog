@@ -19,33 +19,7 @@ const validatePost = [
     },
 ];
 
-/*router.post(
-    '/',
-    [
-        body('title').isString().withMessage('Title must be a string'),
-        body('summary').isString().isLength({ min: 10 }).withMessage('Summary must be at least 10 characters'),
-        body('content').isString().isLength({ min: 20 }).withMessage('Content must be at least 20 characters'),
-        body('category').isString().withMessage('Category must be a string'),
-    ],
-    async (req, res) => {
-        console.log('Request body:', req.body);
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
 
-        const { title, summary, content, category } = req.body;
-
-        try {
-            const newPost = new Post({ title, summary, content, category });
-            const savedPost = await newPost.save();
-            res.status(201).json({ message: 'Post created successfully', post: savedPost });
-        } catch (err) {
-            console.error('Error saving post:', err.message);
-            res.status(500).json({ error: 'Failed to add post. Please try again.', details: err.message });
-        }
-    }
-);*/
 
 // GET /api/posts - Retrieve all posts
 router.get('/', async (req, res) => {
@@ -57,6 +31,22 @@ router.get('/', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch posts' });
     }
 });
+
+// GET /api/posts/:id - Retrieve a specific post
+router.get('/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const post = await Post.findById(id);
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+        res.status(200).json(post);
+    } catch (err) {
+        console.error('Error fetching post:', err.message);
+        res.status(500).json({ error: 'Failed to fetch post' });
+    }
+});
+
 
 
 // Add a new post

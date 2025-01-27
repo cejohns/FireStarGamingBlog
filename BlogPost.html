@@ -31,6 +31,17 @@
         </section>
 
         <section id="blog-post">
+            <div class="post-header">
+                <h1 id="post-title">Loading...</h1>
+                <img src="images/default-image.jpg" alt="Featured Blog Image">
+            </div>
+            <div id="post-content">
+                <p>Loading post content...</p>
+            </div>
+        </section>
+        
+
+        <section id="blog-post">
             <h1 id="post-title"></h1>
             <p id="post-content"></p>
             <div id="comments-section">
@@ -93,5 +104,47 @@
     <footer class="footer">
         <p>&copy; 2025 Firestar Gaming. All Rights Reserved.</p>
     </footer>
+
+    <script>
+        const API_BASE_URL = "https://localhost:3001"; // Ensure this matches your backend URL
+    
+        // Fetch a blog post by ID
+        async function fetchPost(postId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/posts/${postId}`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch post");
+                }
+                const post = await response.json();
+                displayPost(post);
+            } catch (error) {
+                console.error("Error fetching post:", error);
+                document.getElementById("post-content").innerText = "Failed to load post content.";
+            }
+        }
+    
+        // Display the fetched post in the DOM
+        function displayPost(post) {
+            document.getElementById("post-title").innerText = post.title;
+            document.getElementById("post-content").innerHTML = `
+                <p><strong>Category:</strong> ${post.category}</p>
+                <p>${post.content}</p>
+            `;
+            document.querySelector(".post-header img").src = post.image || "images/default-image.jpg"; // Use a default image if none exists
+        }
+    
+        // Fetch and display the post when the page loads
+        document.addEventListener("DOMContentLoaded", () => {
+            // Replace 'your-post-id' with the actual post ID
+            const params = new URLSearchParams(window.location.search);
+            const postId = params.get("id"); // Get the post ID from the URL (e.g., BlogPost.html?id=123)
+            if (postId) {
+                fetchPost(postId);
+            } else {
+                document.getElementById("post-content").innerText = "No post ID provided.";
+            }
+        });
+    </script>
+    
 </body>
 </html>

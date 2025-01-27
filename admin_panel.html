@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Firestar Gaming</title>
     <script type="module" src="adminApi.js"></script>
-
     <link rel="stylesheet" href="admin_panel.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -64,10 +63,10 @@
             </div>
             <section id="admin-posts">
                 <h2>Manage Posts</h2>
-                <div id="posts-container"></div>
+                <div id="posts-container">
+                    <!-- Posts will be dynamically inserted here -->
+                </div>
             </section>
-            
-        </section>
         
 
         <section id="analytics">
@@ -88,8 +87,86 @@
     </footer>
 
        <!-- Add JavaScript here -->
-    <script type="module">
+       <script type="module">
         import { addPost } from './adminApi.js';
+    
+        // Fetch and display posts
+        async function fetchAndRenderPosts() {
+            try {
+                const response = await fetch('https://localhost:3001/api/posts'); // Adjust the URL if necessary
+                if (!response.ok) {
+                    throw new Error('Failed to fetch posts');
+                }
+                const posts = await response.json();
+                renderPosts(posts);
+            } catch (error) {
+                console.error('Error fetching posts:', error);
+                const container = document.getElementById('posts-container');
+                container.innerHTML = '<p>Failed to load posts. Please try again later.</p>';
+            }
+        }
+    
+        // Render posts inside the posts container
+        function renderPosts(posts) {
+            const container = document.getElementById('posts-container');
+            container.innerHTML = ''; // Clear existing posts
+    
+            if (posts.length === 0) {
+                container.innerHTML = '<p>No posts available.</p>';
+                return;
+            }
+    
+            posts.forEach((post) => {
+                const postElement = document.createElement('div');
+                postElement.classList.add('post');
+                postElement.innerHTML = `
+                    <h3>${post.title}</h3>
+                    <p><strong>Category:</strong> ${post.category}</p>
+                    <p><strong>Summary:</strong> ${post.summary}</p>
+                    <a href="BlogPost.html?id=${post._id}" class="view-post">View Post</a>
+                    <button class="edit-post" data-id="${post._id}">Edit</button>
+                    <button class="delete-post" data-id="${post._id}">Delete</button>
+                `;
+                container.appendChild(postElement);
+            });
+    
+            // Add event listeners to "Edit" and "Delete" buttons
+            document.querySelectorAll('.edit-post').forEach((button) =>
+                button.addEventListener('click', handleEditPost)
+            );
+            document.querySelectorAll('.delete-post').forEach((button) =>
+                button.addEventListener('click', handleDeletePost)
+            );
+        }
+    
+        // Handle post deletion
+        async function handleDeletePost(event) {
+            const postId = event.target.dataset.id;
+    
+            if (confirm('Are you sure you want to delete this post?')) {
+                try {
+                    const response = await fetch(`http://localhost:3001/api/posts/${postId}`, {
+                        method: 'DELETE',
+                    });
+                    if (!response.ok) {
+                        throw new Error('Failed to delete post');
+                    }
+                    alert('Post deleted successfully!');
+                    fetchAndRenderPosts(); // Refresh the posts list
+                } catch (error) {
+                    alert('Failed to delete post: ' + error.message);
+                }
+            }
+        }
+    
+        // Placeholder for edit functionality
+        function handleEditPost(event) {
+            const postId = event.target.dataset.id;
+            alert(`Edit functionality for Post ID: ${postId} is not yet implemented.`);
+        }
+    
+        // Fetch and render posts on page load
+        document.addEventListener('DOMContentLoaded', fetchAndRenderPosts);
     
         // Toggle visibility of the Add Post form
         document.getElementById('show-add-post-form').addEventListener('click', () => {
@@ -112,13 +189,14 @@
                     alert('Post added successfully!');
                     document.getElementById('add-post-form').reset();
                     document.getElementById('add-post-form').style.display = 'none';
-                    // Optionally refresh posts list here
+                    fetchAndRenderPosts(); // Refresh posts list
                 }
             } catch (error) {
                 alert('Failed to add post: ' + error.message);
             }
         });
     </script>
+    
     
 </body>
 </html>

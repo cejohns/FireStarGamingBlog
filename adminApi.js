@@ -13,6 +13,7 @@ async function fetchPosts() {
         renderPosts(posts);
     } catch (error) {
         console.error("Error fetching posts:", error);
+        document.getElementById('posts-container').innerHTML = '<p>Failed to load posts.</p>';
         throw error;
     }
 }
@@ -42,6 +43,11 @@ function renderPosts(posts) {
     document.querySelectorAll('.delete-post').forEach((button) =>
         button.addEventListener('click', handleDeletePost)
     );
+
+    // Fetch and display posts when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    fetchPosts();
+});
 }
 
 // Handle editing a post
