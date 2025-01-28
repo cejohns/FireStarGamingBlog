@@ -8,7 +8,8 @@ router.get('/', async (req, res) => {
         const comments = await Comment.find();
         res.json(comments);
     } catch (err) {
-        res.status(500).json({ error: "Failed to fetch comments" });
+        console.error('Error fetching comments:', err);
+        res.status(500).json({ error: 'Failed to fetch comments' });
     }
 });
 
@@ -41,12 +42,15 @@ router.post('/approve', async (req, res) => {
 
 // Delete a comment
 router.delete('/:id', async (req, res) => {
-    const { id } = req.params;
     try {
-        await Comment.findByIdAndDelete(id);
-        res.json({ message: "Comment deleted successfully" });
+        const deletedComment = await Comment.findByIdAndDelete(req.params.id);
+        if (!deletedComment) {
+            return res.status(404).json({ error: 'Comment not found' });
+        }
+        res.json({ message: 'Comment deleted successfully' });
     } catch (err) {
-        res.status(500).json({ error: "Failed to delete comment" });
+        console.error('Error deleting comment:', err);
+        res.status(500).json({ error: 'Failed to delete comment' });
     }
 });
 

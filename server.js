@@ -11,6 +11,7 @@ const dotenv = require('dotenv');
 const https = require('https');
 const fs = require('fs');
 
+
 // Load environment variables
 require('dotenv').config();
 
@@ -97,12 +98,10 @@ const httpsOptions = {
     secureProtocol: 'TLSv1_2_method',
 };
 
-// Start server
-/*app.listen(PORT, () => {
-    console.log(`Server running in ${NODE_ENV} mode on port ${PORT}`);
-});*/
+
 
 // Start HTTPS server
 https.createServer(httpsOptions, app).listen(3001, () => {
     console.log('HTTPS server running on port 3001');
 });
+
