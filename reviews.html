@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game & Tech Reviews - Firestar Gaming</title>
+    <link rel="stylesheet" href="reviews.css">
+    <script type="module" src="reviews.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/NewFSELogo.jpg" alt="Firestar Gaming Logo">
+            <span>Firestar Gaming</span>
+        </div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="categories.html">Categories</a>
+            <a href="reviews.html" class="active">Reviews</a>
+            <a href="tutorials.html">Tutorials</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="reviews">
+            <h1>Latest Reviews</h1>
+            <div id="reviews-container">
+                <!-- Reviews will be dynamically inserted here -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Firestar Gaming. All Rights Reserved.</p>
+    </footer>
+
+    <script type="module">
+        async function fetchReviews() {
+            try {
+                const response = await fetch('http://localhost:3001/api/posts?category=Reviews'); // Adjust API endpoint
+                if (!response.ok) throw new Error("Failed to fetch reviews");
+                const reviews = await response.json();
+
+                const container = document.getElementById('reviews-container');
+                container.innerHTML = reviews.length ? reviews.map(review => `
+                    <div class="review">
+                        <img src="${review.image || 'images/default-image.jpg'}" alt="${review.title}">
+                        <h2>${review.title}</h2>
+                        <p>${review.summary}</p>
+                        <a href="BlogPost.html?id=${review._id}">Read More</a>
+                    </div>
+                `).join('') : '<p>No reviews available.</p>';
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchReviews);
+    </script>
+</body>
+</html>
