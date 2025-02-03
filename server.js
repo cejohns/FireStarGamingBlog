@@ -10,6 +10,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const https = require('https');
 const fs = require('fs');
+const uploadRoutes = require("./routes/uploads");
 
 
 // Load environment variables
@@ -76,6 +77,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentsRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/uploads", express.static("uploads")); // Serve uploaded files
 
 // Error handling middleware
 app.use((err, req, res, next) => {

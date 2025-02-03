@@ -1,165 +1,177 @@
-const API_BASE_URL = "https://localhost:3001"; // Changed to HTTP for development
+const API_BASE_URL = "https://localhost:3001"; // Use HTTP if HTTPS causes issues
 
-// Fetch all blog posts
-async function fetchPosts() {
+// ✅ Generic Fetch Function for All Content Types
+async function fetchContent(type, containerId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/posts`);
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Failed to fetch posts");
-        }
-        return await response.json();
-        const posts = await response.json();
-        renderPosts(posts);
-    } catch (error) {
-        console.error("Error fetching posts:", error);
-        document.getElementById('posts-container').innerHTML = '<p>Failed to load posts.</p>';
-        throw error;
-    }
-}
-
-// Render posts in the DOM
-function renderPosts(posts) {
-    const container = document.getElementById('posts-container');
-    container.innerHTML = ''; // Clear previous content
-
-    posts.forEach((post) => {
-        const postElement = document.createElement('div');
-        postElement.classList.add('post');
-        postElement.innerHTML = `
-            <h3>${post.title}</h3>
-            <p><strong>Category:</strong> ${post.category}</p>
-            <p><strong>Summary:</strong> ${post.summary}</p>
-            <button class="edit-post" data-id="${post._id}">Edit</button>
-            <button class="delete-post" data-id="${post._id}">Delete</button>
-        `;
-        container.appendChild(postElement);
-    });
-
-    // Attach event listeners for edit and delete buttons
-    document.querySelectorAll('.edit-post').forEach((button) =>
-        button.addEventListener('click', handleEditPost)
-    );
-    document.querySelectorAll('.delete-post').forEach((button) =>
-        button.addEventListener('click', handleDeletePost)
-    );
-
-    // Fetch and display posts when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    fetchPosts();
-});
-}
-
-// Handle editing a post
-function handleEditPost(event) {
-    const postId = event.target.getAttribute('data-id');
-    // Logic for editing a post (e.g., prefill form fields)
-    console.log(`Edit post: ${postId}`);
-}
-
-// Handle deleting a post
-async function handleDeletePost(event) {
-    const postId = event.target.getAttribute('data-id');
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/posts/${postId}`, {
-            method: 'DELETE',
-        });
-        if (!response.ok) {
-            throw new Error(`Failed to delete post: ${response.status}`);
-        }
-        console.log(`Post ${postId} deleted successfully`);
-        fetchPosts(); // Refresh the post list
-    } catch (error) {
-        console.error('Error deleting post:', error);
-    }
-}
-
-// Fetch posts when the page loads
-fetchPosts();
-
-// Add a new blog post
-export const addPost = async (postData) => {
-    try {
-        console.log('Sending post data:', postData); // Debug log
-        
-        // Validate required fields before sending
-        if (!postData.title || !postData.summary || !postData.content || !postData.category) {
-            throw new Error('Missing required fields');
-        }
-
-        const response = await fetch(`${API_BASE_URL}/api/posts`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify(postData),
-            
-        });
-
-        if (!response.ok) {
-            let errorMessage = 'Failed to add post';
-            try {
-                const errorData = await response.json();
-                errorMessage = errorData.error || errorMessage;
-            } catch (e) {
-                // If parsing JSON fails, use status text
-                errorMessage = response.statusText;
-            }
-            throw new Error(errorMessage);
-        }
+        const response = await fetch(`${API_BASE_URL}/api/${type}`);
+        if (!response.ok) throw new Error(`Failed to fetch ${type}`);
 
         const data = await response.json();
-        return data;
+        renderContent(data, containerId, type);
     } catch (error) {
-        console.error("Error adding post:", error);
-        throw error;
+        console.error(`Error fetching ${type}:`, error);
+        document.getElementById(containerId).innerHTML = `<p>Failed to load ${type}.</p>`;
     }
-};
+}
 
-// Edit an existing blog post
-async function editPost(postId, updatedData) {
+// ✅ Generic Render Function for All Content Types
+function renderContent(data, containerId, type) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = data.length ? "" : `<p>No ${type} available.</p>`;
+
+    data.forEach((item) => {
+        const element = document.createElement("div");
+        element.classList.add(type);
+
+        let contentHtml = `
+            <h3>${item.title}</h3>
+            <p>${item.summary || item.content || ""}</p>
+        `;
+
+        if (type === "reviews") {
+            contentHtml += `<p><strong>Rating:</strong> ${item.rating}/10</p>`;
+        } else if (type === "galleries") {
+            contentHtml += `<img src="${item.imageUrl}" alt="${item.title}" width="200">`;
+        } else if (type === "videos") {
+            contentHtml += `<video width="320" height="240" controls>
+                <source src="${item.videoUrl}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>`;
+        }
+
+        contentHtml += `
+            <button class="edit-${type}" data-id="${item._id}">Edit</button>
+            <button class="delete-${type}" data-id="${item._id}">Delete</button>
+        `;
+
+        element.innerHTML = contentHtml;
+        container.appendChild(element);
+    });
+
+    // ✅ Attach event listeners for edit and delete buttons
+    document.querySelectorAll(`.edit-${type}`).forEach((btn) =>
+        btn.addEventListener("click", () => handleEdit(type, btn.dataset.id))
+    );
+    document.querySelectorAll(`.delete-${type}`).forEach((btn) =>
+        btn.addEventListener("click", () => handleDelete(type, btn.dataset.id))
+    );
+}
+
+// ✅ Generic Add Function for All Content Types
+async function addContent(type, postData) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/posts/${postId}`, {
-            method: "PUT",
+        const response = await fetch(`${API_BASE_URL}/api/${type}`, {
+            method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updatedData),
-            credentials: "include",
+            body: JSON.stringify(postData),
         });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Failed to edit post");
-        }
-        return await response.json();
+
+        if (!response.ok) throw new Error("Failed to add " + type);
+
+        alert(`${type} added successfully!`);
+        fetchContent(type, `${type}-container`);
     } catch (error) {
-        console.error("Error editing post:", error);
-        throw error;
+        alert(`Error adding ${type}: ${error.message}`);
     }
 }
 
-// Delete a blog post
-async function deletePost(postId) {
+// ✅ Generic Edit Function for All Content Types
+async function handleEdit(type, id) {
+    alert(`Edit functionality for ${type} (ID: ${id}) is not yet implemented.`);
+}
+
+// ✅ Generic Delete Function for All Content Types
+async function handleDelete(type, id) {
+    if (!confirm(`Are you sure you want to delete this ${type}?`)) return;
+
     try {
-        const response = await fetch(`${API_BASE_URL}/api/posts/${postId}`, {
-            method: "DELETE",
-            credentials: "include",
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Failed to delete post");
-        }
-        return await response.json();
+        const response = await fetch(`${API_BASE_URL}/api/${type}/${id}`, { method: "DELETE" });
+
+        if (!response.ok) throw new Error("Failed to delete " + type);
+
+        alert(`${type} deleted successfully!`);
+        fetchContent(type, `${type}-container`);
     } catch (error) {
-        console.error("Error deleting post:", error);
-        throw error;
+        alert(`Error deleting ${type}: ${error.message}`);
     }
 }
 
-// Export functions for use in the admin panel
-export {
-    fetchPosts,
-    editPost,
-    deletePost,
-};
+// ✅ Fetch and render all content on page load
+document.addEventListener("DOMContentLoaded", () => {
+    fetchContent("posts", "posts-container");
+    fetchContent("reviews", "reviews-container");
+    fetchContent("tutorials", "tutorials-container");
+    fetchContent("galleries", "galleries-container");
+    fetchContent("videos", "videos-container");
+});
+
+// ✅ Image Upload Function
+async function uploadImage(file) {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/upload/image`, { method: "POST", body: formData });
+        return (await response.json()).imageUrl;
+    } catch (error) {
+        console.error("Error uploading image:", error);
+        return null;
+    }
+}
+
+// ✅ Video Upload Function
+async function uploadVideo(file) {
+    const formData = new FormData();
+    formData.append("video", file);
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/upload/video`, { method: "POST", body: formData });
+        return (await response.json()).videoUrl;
+    } catch (error) {
+        console.error("Error uploading video:", error);
+        return null;
+    }
+}
+
+// ✅ Approve Image
+async function approveImage(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/gallery/approve/${id}`, { method: "PUT" });
+        if (!response.ok) throw new Error("Failed to approve image");
+
+        alert("Image approved successfully!");
+        fetchContent("galleries", "galleries-container");
+    } catch (error) {
+        alert(`Error approving image: ${error.message}`);
+    }
+}
+
+// ✅ Approve Video
+async function approveVideo(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/videos/approve/${id}`, { method: "PUT" });
+        if (!response.ok) throw new Error("Failed to approve video");
+
+        alert("Video approved successfully!");
+        fetchContent("videos", "videos-container");
+    } catch (error) {
+        alert(`Error approving video: ${error.message}`);
+    }
+}
+
+// ✅ Toggle content sections using tabs
+document.querySelectorAll(".tab-btn").forEach((button) =>
+    button.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.remove("active"));
+        button.classList.add("active");
+
+        document.querySelectorAll(".content-section").forEach((section) => {
+            section.style.display = "none";
+        });
+
+        document.getElementById(button.dataset.target).style.display = "block";
+    })
+);
+
+// ✅ Export functions for use in other scripts
+export { fetchContent, addContent, handleEdit, handleDelete };
