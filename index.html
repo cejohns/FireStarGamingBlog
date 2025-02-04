@@ -19,9 +19,9 @@
         <nav>
             <a href="index.html">Home</a>
             <a href="categories.html">Categories</a>
-            <a href="AboutUs.html">About Us</a>
-            <a href="contact.html" class="active">Contact</a>
             <a href="BlogPost.html">Blog Post</a>
+            <a href="reviews.html">Reviews</a>
+            <a href="tutorials.html">Tutorials</a>
             <a href="SearchFiler.html">Search</a>
             <a href="register.html">Register</a>
             <a href="login.html">Login</a>
@@ -52,6 +52,16 @@
         </div>
     </section>
 
+    <section id="review-content">
+        <h2>Latest Reviews</h2>
+        <div id="reviews-container"></div>
+    </section>
+
+    <section id="video">
+        <h2>Latest videos</h2>
+        <div id="videos-container"></div>
+    </section>
+
     <section id="blog-posts">
         <h2>Latest Blog Posts</h2>
         <div id="posts-container"></div>
@@ -62,6 +72,21 @@
 
     <footer class="footer">
         <p>&copy; 2025 Firestar Gaming. All Rights Reserved.</p>
+        <a href="AboutUs.html">About Us</a>
+        <a href="contact.html" class="active">Contact</a>
     </footer>
+
+    <script type="module">
+        import { fetchContent } from "./adminApi.js";
+    
+        // Fetch and display latest content on the homepage
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchContent("posts", "posts-container");
+            fetchContent("reviews", "reviews-container");
+            fetchContent("videos", "videos-container");
+        });
+    </script>
+    
+    
 </body>
 </html>
