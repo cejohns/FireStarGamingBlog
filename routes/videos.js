@@ -2,6 +2,19 @@ const express = require("express");
 const router = express.Router();
 const Video = require("../models/Video");
 
+// GET /api/videos - Retrieve all videos
+router.get("/", async (req, res) => {
+    try {
+        const videos = await Video.find();
+        res.status(200).json(videos);
+    } catch (err) {
+        console.error("Error fetching videos:", err);
+        res.status(500).json({ error: "Failed to fetch videos" });
+    }
+});
+
+
+
 // Upload a Video
 router.post("/", async (req, res) => {
     const { title, videoUrl } = req.body;

@@ -1,5 +1,4 @@
-const API_BASE_URL = "https://localhost:3001"; // Use HTTP if HTTPS causes issues
-
+const API_BASE_URL = "http://localhost:3000"; // Ensure it's HTTP if HTTPS is causing issues
 // ✅ Generic Fetch Function for All Content Types
 async function fetchContent(type, containerId) {
     try {
@@ -60,11 +59,25 @@ function renderContent(data, containerId, type) {
 // ✅ Generic Add Function for All Content Types
 async function addContent(type, postData) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/${type}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(postData),
-        });
+        let response;
+        
+        if (type === "galleries") {
+            // ✅ Use FormData for file upload
+            const formData = new FormData();
+            formData.append("title", postData.title);
+            formData.append("image", postData.image); // Image file
+
+            response = await fetch(`${API_BASE_URL}/api/galleries`, {
+                method: "POST",
+                body: formData
+            });
+        } else {
+            response = await fetch(`${API_BASE_URL}/api/${type}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(postData)
+            });
+        }
 
         if (!response.ok) throw new Error("Failed to add " + type);
 
@@ -74,6 +87,7 @@ async function addContent(type, postData) {
         alert(`Error adding ${type}: ${error.message}`);
     }
 }
+
 
 // ✅ Generic Edit Function for All Content Types
 async function handleEdit(type, id) {
@@ -96,68 +110,130 @@ async function handleDelete(type, id) {
     }
 }
 
-// ✅ Fetch and render all content on page load
+// ✅ Fetch Gallery Images
+async function fetchGalleries() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/galleries`);
+        if (!response.ok) throw new Error("Failed to fetch galleries");
+
+        const data = await response.json();
+        renderGalleries(data);
+    } catch (error) {
+        console.error("Error fetching galleries:", error);
+        document.getElementById("galleries-container").innerHTML = "<p>Failed to load galleries.</p>";
+    }
+}
+
+// ✅ Render Images in the Gallery Section
+function renderGalleries(data) {
+    const container = document.getElementById("galleries-container");
+    container.innerHTML = "";
+
+    data.forEach((item) => {
+        const imgElement = document.createElement("img");
+        imgElement.src = item.imageUrl;
+        imgElement.alt = item.title;
+        imgElement.width = 200;
+
+        container.appendChild(imgElement);
+    });
+}
+
+// ✅ Upload Image Function
+async function uploadImage(imageFile, title) {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+    formData.append("title", title);
+
+    console.log("Uploading image...", imageFile, title); // Debugging
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/upload/image`, {
+            method: "POST",
+            body: formData,
+        });
+
+        console.log("Response status:", response.status); // Debugging
+
+        if (!response.ok) throw new Error("Failed to upload image");
+
+        const data = await response.json();
+        return data.imageUrl;
+    } catch (error) {
+        console.error("Error uploading image:", error);
+        throw error;
+    }
+}
+
+// ✅ Video Upload Function
+async function uploadVideo(videoFile) {
+    const formData = new FormData();
+    formData.append("video", videoFile);
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/upload/video`, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) throw new Error("Failed to upload video");
+
+        const data = await response.json();
+        return data.videoUrl; // Assuming the server responds with the video URL
+    } catch (error) {
+        console.error("Error uploading video:", error);
+        throw error;
+    }
+}
+
+// ✅ Handle Form Submissions
 document.addEventListener("DOMContentLoaded", () => {
+    // Fetch and render all content on page load
     fetchContent("posts", "posts-container");
     fetchContent("reviews", "reviews-container");
     fetchContent("tutorials", "tutorials-container");
     fetchContent("galleries", "galleries-container");
     fetchContent("videos", "videos-container");
+
+    // Generic form submission handler
+    const forms = {
+        "add-post-form": "posts",
+        "add-review-form": "reviews",
+        "add-tutorial-form": "tutorials",
+        "add-gallery-form": "galleries",
+        "add-video-form": "videos",
+    };
+
+    for (const [formId, type] of Object.entries(forms)) {
+        const form = document.getElementById(formId);
+        if (form) {
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                if (type === "galleries" || type === "videos") {
+                    const fileInput = form.querySelector('input[type="file"]');
+                    const file = fileInput.files[0];
+                    if (!file) {
+                        alert("Please select a file.");
+                        return;
+                    }
+
+                    const uploadFunction = type === "galleries" ? uploadImage : uploadVideo;
+                    const fileUrl = await uploadFunction(file);
+                    if (!fileUrl) throw new Error(`Failed to upload ${type} file.`);
+
+                    data[type === "galleries" ? "imageUrl" : "videoUrl"] = fileUrl;
+                }
+
+                await addContent(type, data);
+                form.reset();
+            });
+        }
+    }
 });
-
-// ✅ Image Upload Function
-async function uploadImage(file) {
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/upload/image`, { method: "POST", body: formData });
-        return (await response.json()).imageUrl;
-    } catch (error) {
-        console.error("Error uploading image:", error);
-        return null;
-    }
-}
-
-// ✅ Video Upload Function
-async function uploadVideo(file) {
-    const formData = new FormData();
-    formData.append("video", file);
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/upload/video`, { method: "POST", body: formData });
-        return (await response.json()).videoUrl;
-    } catch (error) {
-        console.error("Error uploading video:", error);
-        return null;
-    }
-}
-
-// ✅ Approve Image
-async function approveImage(id) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/gallery/approve/${id}`, { method: "PUT" });
-        if (!response.ok) throw new Error("Failed to approve image");
-
-        alert("Image approved successfully!");
-        fetchContent("galleries", "galleries-container");
-    } catch (error) {
-        alert(`Error approving image: ${error.message}`);
-    }
-}
-
-// ✅ Approve Video
-async function approveVideo(id) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/videos/approve/${id}`, { method: "PUT" });
-        if (!response.ok) throw new Error("Failed to approve video");
-
-        alert("Video approved successfully!");
-        fetchContent("videos", "videos-container");
-    } catch (error) {
-        alert(`Error approving video: ${error.message}`);
-    }
-}
 
 // ✅ Toggle content sections using tabs
 document.querySelectorAll(".tab-btn").forEach((button) =>
@@ -173,5 +249,37 @@ document.querySelectorAll(".tab-btn").forEach((button) =>
     })
 );
 
+// ✅ Handle Image Upload from Form
+document.addEventListener("DOMContentLoaded", () => {
+    fetchGalleries();
+
+    const galleryForm = document.getElementById("add-gallery-form");
+
+    if (galleryForm) {
+        galleryForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById("gallery-title").value;
+            const imageFile = document.getElementById("gallery-image").files[0];
+
+            if (!title || !imageFile) {
+                alert("All fields are required!");
+                return;
+            }
+
+            try {
+                const imageUrl = await uploadImage(imageFile, title);
+                alert("Image uploaded successfully!");
+
+                fetchGalleries(); // Refresh the gallery
+                galleryForm.reset();
+            } catch (error) {
+                console.error("Error adding gallery image:", error);
+                alert("Error adding gallery image: " + error.message);
+            }
+        });
+    }
+});
+
 // ✅ Export functions for use in other scripts
-export { fetchContent, addContent, handleEdit, handleDelete };
+export { fetchContent, addContent, handleEdit, handleDelete, uploadImage, uploadVideo };

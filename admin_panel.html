@@ -77,21 +77,29 @@
             <!-- Game Reviews -->
             <div class="content-section" id="reviews" style="display: none;">
                 <button id="show-add-review-form">Add Review</button>
-                <form id="add-review-form" style="display: none;">
+                <form id="add-review-form">
                     <label for="review-title">Title:</label>
                     <input type="text" id="review-title" required>
-
-                    <label for="game">Game:</label>
-                    <input type="text" id="game" required>
-
-                    <label for="score">Score:</label>
-                    <input type="number" id="score" min="0" max="10" required>
-
-                    <label for="review-content">Review:</label>
+                
+                    <label for="review-summary">Summary:</label>
+                    <textarea id="review-summary" required></textarea>
+                
+                    <label for="review-content">Content:</label>
                     <textarea id="review-content" required></textarea>
-
+                
+                    <label for="review-rating">Rating (0-10):</label>
+                    <input type="number" id="review-rating" min="0" max="10" required>
+                
+                    <label for="review-category">Category:</label>
+                    <select id="review-category" required>
+                        <option value="Video Games">Video Games</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Gaming Hardware">Gaming Hardware</option>
+                    </select>
+                
                     <button type="submit">Submit Review</button>
                 </form>
+                
                 <div id="reviews-container"></div>
             </div>
 
@@ -101,10 +109,20 @@
                 <form id="add-tutorial-form" style="display: none;">
                     <label for="tutorial-title">Title:</label>
                     <input type="text" id="tutorial-title" required>
-
+                
+                    <label for="tutorial-summary">Summary:</label>
+                    <textarea id="tutorial-summary" required></textarea>
+                
                     <label for="tutorial-content">Tutorial Content:</label>
                     <textarea id="tutorial-content" required></textarea>
-
+                
+                    <label for="tutorial-category">Category:</label>
+                    <select id="tutorial-category" required>
+                        <option value="Video Games">Video Games</option>
+                        <option value="Game Development">Game Development</option>
+                        <option value="New Tech">New Tech</option>
+                    </select>
+                
                     <button type="submit">Submit Tutorial</button>
                 </form>
                 <div id="tutorials-container"></div>
@@ -113,16 +131,15 @@
             <!-- Picture Galleries -->
             <div class="content-section" id="galleries" style="display: none;">
                 <button id="show-add-gallery-form">Add Picture</button>
-                <form id="add-gallery-form" style="display: none;">
-                    <label for="gallery-title">Title:</label>
-                    <input type="text" id="gallery-title" required>
-
-                    <label for="gallery-image">Upload Image:</label>
-                    <input type="file" id="gallery-image" accept="image/*" required>
-
-                    <button type="submit">Upload</button>
+                <form id="add-gallery-form">
+                    <input type="text" id="gallery-title" placeholder="Title" required />
+                    <input type="file" id="gallery-image"name="image" accept="image/*"  required />
+                    <button type="submit">Upload Image</button>
                 </form>
-                <div id="galleries-container"></div>
+                <div id="galleries-container">
+                    <h2>Preview:</h2>
+                    <img id="previewImage" src="#" alt="Image Preview" style="display: none;">
+                  </div>
             </div>
 
             <!-- Videos -->
@@ -162,9 +179,11 @@
     <p>&copy; 2025 Firestar Gaming. Admin Panel.</p>
 </footer>
 
-<script type="module" src="adminApi.js"></script>
 
-<script>
+
+<script type="module">
+  import { uploadImage, addContent, fetchContent } from "./adminApi.js";
+
     // Toggle tabs functionality
     document.querySelectorAll(".tab-btn").forEach(button => {
         button.addEventListener("click", () => {
@@ -185,6 +204,44 @@
             const form = document.getElementById(button.id.replace("show-", ""));
             form.style.display = form.style.display === "none" ? "block" : "none";
         });
+    });
+
+    // Handle gallery form submission
+    document.addEventListener("DOMContentLoaded", () => {
+        const galleryForm = document.getElementById("add-gallery-form");
+
+        if (galleryForm) {
+            galleryForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const title = document.getElementById("gallery-title").value;
+                const imageFile = document.getElementById("gallery-image").files[0];
+
+               
+
+                if (!title || !imageFile) {
+                    alert("All fields are required!");
+                    return;
+                }
+
+                try {
+                    const imageUrl = await uploadImage(imageFile);
+
+                    if (!imageUrl) {
+                        throw new Error("Failed to upload image");
+                    }
+
+                    const galleryData = { title, imageUrl };
+                    await addContent("galleries", galleryData);
+
+                    galleryForm.reset();
+                    fetchContent("galleries", "galleries-container");
+                } catch (error) {
+                    console.error("Error adding gallery image:", error);
+                    alert("Error adding gallery image: " + error.message);
+                }
+            });
+        }
     });
 </script>
 

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Upload</title>
+</head>
+<body>
+    <form id="uploadForm">
+        <input type="text" name="title" placeholder="Title" required />
+        <input type="file" name="image" accept="image/*" required />
+        <button type="submit">Upload</button>
+    </form>
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+
+            console.log("Form data:", formData); // Debugging
+
+            try {
+                const response = await fetch("https://localhost:3000/api/upload/image", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                console.log("Response status:", response.status); // Debugging
+
+                if (!response.ok) {
+                    const errorData = await response.json(); // Log the error response
+                    console.error("Error response:", errorData);
+                    throw new Error("Failed to upload image");
+                }
+
+                const data = await response.json();
+                console.log("Upload successful:", data);
+                alert("Image uploaded successfully!");
+            } catch (error) {
+                console.error("Error uploading image:", error);
+                alert("Error uploading image: " + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -2,6 +2,18 @@ const express = require("express");
 const router = express.Router();
 const Tutorial = require("../models/Tutorials");
 
+
+// GET /api/tutorials - Retrieve all tutorials
+router.get("/", async (req, res) => {
+    try {
+        const tutorials = await Tutorial.find();
+        res.status(200).json(tutorials);
+    } catch (err) {
+        console.error("Error fetching tutorials:", err);
+        res.status(500).json({ error: "Failed to fetch tutorials" });
+    }
+});
+
 // Create a Tutorial
 router.post("/", async (req, res) => {
     const { title, summary, content, category } = req.body;

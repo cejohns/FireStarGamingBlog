@@ -179,3 +179,44 @@ header nav a:hover, header nav a.active {
     font-size: 14px;
     color: var(--text-color);
 }
+
+/* Scrollable wrapper to contain the content */
+.scroll-wrapper {
+    width: 100%;
+    overflow-x: auto; /* Enables horizontal scrolling */
+    white-space: nowrap; /* Prevents items from wrapping to new lines */
+    padding: 10px 0;
+    scrollbar-width: thin; /* For Firefox */
+}
+
+/* Hide scrollbar for WebKit browsers (Chrome, Safari) */
+.scroll-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.scroll-wrapper::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+}
+
+.scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
+/* The content inside should display items in a row */
+.scroll-content {
+    display: flex;
+    gap: 15px; /* Space between items */
+}
+
+/* Style each item inside the scrolling container */
+.scroll-content div {
+    flex: 0 0 auto; /* Prevents items from shrinking */
+    width: 300px; /* Set a fixed width for each item */
+    background: #f4f4f4;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
