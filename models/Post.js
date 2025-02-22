@@ -7,10 +7,12 @@ const CommentSchema = new mongoose.Schema({
 
 const PostSchema = new mongoose.Schema({
     title: { type: String, required: true },
+    author: { type: String, required: true },
     summary: { type: String, required: true },
     content: { type: String, required: true },
-    category: { type: String, required: true }, // Add this field
+    category: { type: String, required: true },
     comments: [CommentSchema],
+    approved: { type: Boolean, default: false }, // ✅ Added approval status
     createdAt: { type: Date, default: Date.now },
 });
 

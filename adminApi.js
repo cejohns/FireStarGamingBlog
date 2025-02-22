@@ -24,12 +24,20 @@ function renderContent(data, containerId, type) {
 
         let contentHtml = `
             <h3>${item.title}</h3>
-            <p>${item.summary || item.content || ""}</p>
+            <p><strong>Author:</strong> ${item.author}</p>
+            <p><strong>Category:</strong> ${item.category}</p>
+            <p><strong>Created At:</strong> ${new Date(item.createdAt).toLocaleString()}</p>
+            <p><strong>Summary:</strong> ${item.summary}</p>
+            <p>${item.content}</p>
         `;
 
+        // ✅ Add review-specific fields
         if (type === "reviews") {
             contentHtml += `<p><strong>Rating:</strong> ${item.rating}/10</p>`;
-        } else if (type === "galleries") {
+        }
+
+        // ✅ Add media fields
+        if (type === "galleries") {
             contentHtml += `<img src="${item.imageUrl}" alt="${item.title}" width="200">`;
         } else if (type === "videos") {
             contentHtml += `<video width="320" height="240" controls>
@@ -38,6 +46,15 @@ function renderContent(data, containerId, type) {
             </video>`;
         }
 
+        // ✅ Add approve button for posts, reviews, and tutorials
+        if (item.approved !== undefined) {
+            contentHtml += `<p><strong>Approved:</strong> ${item.approved ? "Yes" : "No"}</p>`;
+            if (!item.approved) {
+                contentHtml += `<button class="approve-${type}" data-id="${item._id}">Approve</button>`;
+            }
+        }
+
+        // ✅ Add Edit and Delete buttons (only once)
         contentHtml += `
             <button class="edit-${type}" data-id="${item._id}">Edit</button>
             <button class="delete-${type}" data-id="${item._id}">Delete</button>
@@ -47,14 +64,19 @@ function renderContent(data, containerId, type) {
         container.appendChild(element);
     });
 
-    // ✅ Attach event listeners for edit and delete buttons
+    // ✅ Attach event listeners for edit, delete, and approve buttons
     document.querySelectorAll(`.edit-${type}`).forEach((btn) =>
         btn.addEventListener("click", () => handleEdit(type, btn.dataset.id))
     );
     document.querySelectorAll(`.delete-${type}`).forEach((btn) =>
         btn.addEventListener("click", () => handleDelete(type, btn.dataset.id))
     );
+    document.querySelectorAll(`.approve-${type}`).forEach((btn) =>
+        btn.addEventListener("click", () => handleApprove(type, btn.dataset.id))
+    );
 }
+
+
 
 // ✅ Generic Add Function for All Content Types
 async function addContent(type, postData) {
@@ -109,6 +131,22 @@ async function handleDelete(type, id) {
         alert(`Error deleting ${type}: ${error.message}`);
     }
 }
+
+async function handleApprove(type, id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/${type}/approve/${id}`, {
+            method: "PUT",
+        });
+
+        if (!response.ok) throw new Error("Failed to approve " + type);
+
+        alert(`${type} approved successfully!`);
+        fetchContent(type, `${type}-container`);
+    } catch (error) {
+        alert(`Error approving ${type}: ${error.message}`);
+    }
+}
+
 
 // ✅ Fetch Gallery Images
 async function fetchGalleries() {
@@ -171,7 +209,7 @@ async function uploadVideo(videoFile) {
     formData.append("video", videoFile);
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/upload/video`, {
+        const response = await fetch(`${API_BASE_URL}/api/videos`, {
             method: "POST",
             body: formData,
         });
@@ -179,12 +217,13 @@ async function uploadVideo(videoFile) {
         if (!response.ok) throw new Error("Failed to upload video");
 
         const data = await response.json();
-        return data.videoUrl; // Assuming the server responds with the video URL
+        return data.videoUrl; // Ensure this matches backend response
     } catch (error) {
         console.error("Error uploading video:", error);
         throw error;
     }
 }
+
 
 // ✅ Handle Form Submissions
 document.addEventListener("DOMContentLoaded", () => {
@@ -248,6 +287,19 @@ document.querySelectorAll(".tab-btn").forEach((button) =>
         document.getElementById(button.dataset.target).style.display = "block";
     })
 );
+
+document.getElementById("add-post-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const postData = Object.fromEntries(formData.entries());
+
+    postData.createdAt = new Date().toISOString(); // Ensure createdAt is included
+
+    await addContent("posts", postData);
+    e.target.reset();
+});
+
 
 // ✅ Handle Image Upload from Form
 document.addEventListener("DOMContentLoaded", () => {

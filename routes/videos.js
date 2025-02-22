@@ -1,11 +1,36 @@
 const express = require("express");
-const router = express.Router();
-const Video = require("../models/Video");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-// GET /api/videos - Retrieve all videos
+const router = express.Router();
+
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, "../uploads/videos");
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Configure Multer for video uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage });
+
+// ✅ GET /api/videos - Retrieve all videos
 router.get("/", async (req, res) => {
     try {
-        const videos = await Video.find();
+        const files = fs.readdirSync(uploadDir);
+        const videos = files.map(file => ({
+            filename: file,
+            videoUrl: `/uploads/videos/${file}`
+        }));
         res.status(200).json(videos);
     } catch (err) {
         console.error("Error fetching videos:", err);
@@ -13,38 +38,12 @@ router.get("/", async (req, res) => {
     }
 });
 
-
-
-// Upload a Video
-router.post("/", async (req, res) => {
-    const { title, videoUrl } = req.body;
-    try {
-        const newVideo = new Video({ title, videoUrl });
-        await newVideo.save();
-        res.status(201).json({ message: "Video uploaded successfully!", video: newVideo });
-    } catch (err) {
-        res.status(500).json({ error: "Failed to upload video" });
+// ✅ POST /api/videos - Upload video
+router.post("/", upload.single("video"), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: "No video uploaded" });
     }
-});
-
-// Approve a Video
-router.put("/approve/:id", async (req, res) => {
-    try {
-        const video = await Video.findByIdAndUpdate(req.params.id, { approved: true }, { new: true });
-        res.json({ message: "Video approved", video });
-    } catch (err) {
-        res.status(500).json({ error: "Failed to approve video" });
-    }
-});
-
-// Delete a Video
-router.delete("/:id", async (req, res) => {
-    try {
-        await Video.findByIdAndDelete(req.params.id);
-        res.json({ message: "Video deleted successfully" });
-    } catch (err) {
-        res.status(500).json({ error: "Failed to delete video" });
-    }
+    res.json({ videoUrl: `/uploads/videos/${req.file.filename}` });
 });
 
 module.exports = router;

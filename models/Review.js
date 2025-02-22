@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const ReviewSchema = new mongoose.Schema({
     title: { type: String, required: true },
+    author: {type: String, required:true},
     summary: { type: String, required: true },
     content: { type: String, required: true },
     rating: { type: Number, required: true, min: 0, max: 10 },

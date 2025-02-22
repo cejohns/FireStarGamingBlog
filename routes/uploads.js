@@ -31,4 +31,13 @@ router.post("/image", upload.single("image"), (req, res) => {
     res.json({ imageUrl: `/uploads/${req.file.filename}` });
 });
 
+
+// ✅ Video Upload API Route
+router.post("/", upload.single("video"), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: "No video uploaded" });
+    }
+    res.json({ videoUrl: `/uploads/videos/${req.file.filename}` });
+});
+
 module.exports = router;

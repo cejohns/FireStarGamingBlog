@@ -115,4 +115,18 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// Approve a post
+router.put("/approve/:id", async (req, res) => {
+    try {
+        const post = await Post.findByIdAndUpdate(req.params.id, { approved: true }, { new: true });
+        if (!post) return res.status(404).json({ error: "Post not found" });
+
+        res.json({ message: "Post approved", post });
+    } catch (err) {
+        console.error("Error approving post:", err);
+        res.status(500).json({ error: "Failed to approve post" });
+    }
+});
+
+
 module.exports = router;
