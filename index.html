@@ -59,12 +59,20 @@
         </div>
     </section>
     
-    <section id="video">
+    <section id="videos">
         <h2>Latest Videos</h2>
         <div class="scroll-wrapper">
             <div id="videos-container" class="scroll-content"></div>
         </div>
     </section>
+    
+    <section id="galleries">
+        <h2>Latest Galleries</h2>
+        <div class="scroll-wrapper">
+            <div id="galleries-container" class="scroll-content"></div>
+        </div>
+    </section>
+    
     
     <section id="blog-posts">
         <h2>Latest Blog Posts</h2>
@@ -73,19 +81,7 @@
         </div>
     </section>
 
-    <form id="add-post-form">
-        <input type="text" id="post-title" placeholder="Title" required>
-        <textarea id="post-content" placeholder="Write your post here..." required></textarea>
-        <button type="submit">Add Post</button>
-    </form>
-    
-    
-<!-- Publish Button -->
-<button id="publish-button" class="publish-button">Publish</button>
-
-<!-- Containers for Tutorials & Galleries -->
-<div id="tutorials-container"></div>
-<div id="galleries-container"></div>
+   
 
 
     
@@ -97,7 +93,7 @@
     </footer>
 
     <script type="module">
-        import { fetchContent } from "./adminApi.js";
+       
     
         // Fetch and display latest content on the homepage
         document.addEventListener("DOMContentLoaded", () => {

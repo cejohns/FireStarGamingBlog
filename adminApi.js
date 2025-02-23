@@ -231,18 +231,27 @@ async function uploadVideo(videoFile) {
 
 async function handlePublish(type, id) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/${type}/publish/${id}`, {
+        const response = await fetch(`http://localhost:3000/api/${type}/publish/${id}`, {
             method: "PUT",
         });
 
         if (!response.ok) throw new Error(`Failed to publish ${type}`);
 
+        const updatedItem = await response.json();
+
+        // ✅ Store published item in localStorage
+        let publishedItems = JSON.parse(localStorage.getItem(`${type}-published`)) || [];
+        publishedItems.push(updatedItem);
+        localStorage.setItem(`${type}-published`, JSON.stringify(publishedItems));
+
         alert(`${type} published successfully!`);
         fetchContent(type, `${type}-container`);
     } catch (error) {
+        console.error(`Error publishing ${type}:`, error);
         alert(`Error publishing ${type}: ${error.message}`);
     }
 }
+
 
 
 // ✅ Handle Form Submissions
@@ -349,9 +358,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     } else {
-        console.warn("Form with id 'add-post-form' not found in index.html!");
+        console.warn("Form with id 'add-post-form' not found in admin_panel.html!");
     }
 });
+
 
 
 // ✅ Handle Image Upload from Form
@@ -421,6 +431,62 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".publish-button").forEach((btn) => {
         btn.addEventListener("click", () => handlePublish(btn.dataset.type, btn.dataset.id));
     });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    // ✅ Only look for the publish button inside the admin panel
+    if (window.location.pathname.includes("admin")) { 
+        const publishButton = document.getElementById("publish-button");
+        if (publishButton) {
+            publishButton.addEventListener("click", () => handlePublish("reviews"));
+        } else {
+            console.warn("Publish button not found in admin panel!");
+        }
+    }
+
+    // ✅ Ensure home reviews are loaded
+    const homeReviewsContainer = document.getElementById("home-reviews-container");
+    if (homeReviewsContainer) {
+        fetchContent("reviews", "home-reviews-container");
+    } else {
+        console.warn("Container home-reviews-container not found in index.html!");
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    // ✅ Only run this code if the page is "admin_panel.html"
+    if (window.location.pathname.includes("admin_panel.html")) {
+        const addPostForm = document.getElementById("add-post-form");
+
+        if (addPostForm) {
+            addPostForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                console.log("Form submitted!"); // Debugging
+
+                // Collect form data
+                const title = document.getElementById("post-title").value;
+                const content = document.getElementById("post-content").value;
+
+                try {
+                    const response = await fetch("http://localhost:3000/api/posts", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ title, content }),
+                    });
+
+                    if (!response.ok) throw new Error("Failed to add post");
+
+                    alert("Post added successfully!");
+                    addPostForm.reset();
+                } catch (error) {
+                    console.error("Error submitting post:", error);
+                    alert("Failed to submit post.");
+                }
+            });
+        } else {
+            console.warn("Form with id 'add-post-form' not found. Skipping event listener.");
+        }
+    }
 });
 
 

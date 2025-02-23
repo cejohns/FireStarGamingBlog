@@ -24,16 +24,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ✅ GET /api/galleries - Retrieve all gallery items
+// ✅ GET /api/galleries - Retrieve only approved gallery images
 router.get("/", async (req, res) => {
     try {
-        const galleries = await Gallery.find();
+        const galleries = await Gallery.find({ approved: true });
         res.status(200).json(galleries);
     } catch (err) {
         console.error("Error fetching galleries:", err);
         res.status(500).json({ error: "Failed to fetch galleries" });
     }
 });
+
 
 // ✅ POST /api/galleries - Upload image & save metadata
 router.post("/", upload.single("image"), async (req, res) => {
