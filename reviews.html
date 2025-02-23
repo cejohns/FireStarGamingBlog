@@ -48,7 +48,7 @@
                         <img src="${review.image || 'images/default-image.jpg'}" alt="${review.title}">
                         <h2>${review.title}</h2>
                         <p>${review.summary}</p>
-                        <a href="BlogPost.html?id=${review._id}">Read More</a>
+                     <a href="review.html?id=${review._id}">Read More</a>
                     </div>
                 `).join('') : '<p>No reviews available.</p>';
             } catch (error) {

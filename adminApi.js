@@ -2,6 +2,12 @@ const API_BASE_URL = "http://localhost:3000"; // Ensure it's HTTP if HTTPS is ca
 // ✅ Generic Fetch Function for All Content Types
 async function fetchContent(type, containerId) {
     try {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.warn(`Container ${containerId} not found in index.html!`);
+            return;
+        }
+
         const response = await fetch(`${API_BASE_URL}/api/${type}`);
         if (!response.ok) throw new Error(`Failed to fetch ${type}`);
 
@@ -9,9 +15,10 @@ async function fetchContent(type, containerId) {
         renderContent(data, containerId, type);
     } catch (error) {
         console.error(`Error fetching ${type}:`, error);
-        document.getElementById(containerId).innerHTML = `<p>Failed to load ${type}.</p>`;
     }
 }
+
+
 
 // ✅ Generic Render Function for All Content Types
 function renderContent(data, containerId, type) {
@@ -31,30 +38,24 @@ function renderContent(data, containerId, type) {
             <p>${item.content}</p>
         `;
 
-        // ✅ Add review-specific fields
         if (type === "reviews") {
             contentHtml += `<p><strong>Rating:</strong> ${item.rating}/10</p>`;
         }
 
-        // ✅ Add media fields
-        if (type === "galleries") {
-            contentHtml += `<img src="${item.imageUrl}" alt="${item.title}" width="200">`;
-        } else if (type === "videos") {
-            contentHtml += `<video width="320" height="240" controls>
-                <source src="${item.videoUrl}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>`;
-        }
-
-        // ✅ Add approve button for posts, reviews, and tutorials
         if (item.approved !== undefined) {
             contentHtml += `<p><strong>Approved:</strong> ${item.approved ? "Yes" : "No"}</p>`;
+            
             if (!item.approved) {
                 contentHtml += `<button class="approve-${type}" data-id="${item._id}">Approve</button>`;
             }
         }
 
-        // ✅ Add Edit and Delete buttons (only once)
+        // ✅ Add Publish button for approved content
+        if (item.approved) {
+            contentHtml += `<button class="publish-${type}" data-id="${item._id}">Publish</button>`;
+        }
+
+        // ✅ Add Edit and Delete buttons
         contentHtml += `
             <button class="edit-${type}" data-id="${item._id}">Edit</button>
             <button class="delete-${type}" data-id="${item._id}">Delete</button>
@@ -64,7 +65,7 @@ function renderContent(data, containerId, type) {
         container.appendChild(element);
     });
 
-    // ✅ Attach event listeners for edit, delete, and approve buttons
+    // ✅ Attach event listeners
     document.querySelectorAll(`.edit-${type}`).forEach((btn) =>
         btn.addEventListener("click", () => handleEdit(type, btn.dataset.id))
     );
@@ -74,7 +75,11 @@ function renderContent(data, containerId, type) {
     document.querySelectorAll(`.approve-${type}`).forEach((btn) =>
         btn.addEventListener("click", () => handleApprove(type, btn.dataset.id))
     );
+    document.querySelectorAll(`.publish-${type}`).forEach((btn) =>
+        btn.addEventListener("click", () => handlePublish(type, btn.dataset.id))
+    );
 }
+
 
 
 
@@ -224,6 +229,21 @@ async function uploadVideo(videoFile) {
     }
 }
 
+async function handlePublish(type, id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/${type}/publish/${id}`, {
+            method: "PUT",
+        });
+
+        if (!response.ok) throw new Error(`Failed to publish ${type}`);
+
+        alert(`${type} published successfully!`);
+        fetchContent(type, `${type}-container`);
+    } catch (error) {
+        alert(`Error publishing ${type}: ${error.message}`);
+    }
+}
+
 
 // ✅ Handle Form Submissions
 document.addEventListener("DOMContentLoaded", () => {
@@ -300,6 +320,39 @@ document.getElementById("add-post-form").addEventListener("submit", async (e) =>
     e.target.reset();
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    const addPostForm = document.getElementById("add-post-form");
+
+    if (addPostForm) {
+        addPostForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            console.log("Form submitted!"); // Debugging
+
+            // Collect form data
+            const title = document.getElementById("post-title").value;
+            const content = document.getElementById("post-content").value;
+
+            try {
+                const response = await fetch("http://localhost:3000/api/posts", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title, content }),
+                });
+
+                if (!response.ok) throw new Error("Failed to add post");
+
+                alert("Post added successfully!");
+                addPostForm.reset();
+            } catch (error) {
+                console.error("Error submitting post:", error);
+                alert("Failed to submit post.");
+            }
+        });
+    } else {
+        console.warn("Form with id 'add-post-form' not found in index.html!");
+    }
+});
+
 
 // ✅ Handle Image Upload from Form
 document.addEventListener("DOMContentLoaded", () => {
@@ -332,6 +385,30 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Fix publish button issue
+    const publishButton = document.getElementById("publish-button");
+    if (publishButton) {
+        publishButton.addEventListener("click", handlePublish);
+    } else {
+        console.warn("Publish button not found in index.html!");
+    }
+
+    // Fix tutorials and galleries issues
+    if (document.getElementById("tutorials-container")) {
+        fetchContent("tutorials", "tutorials-container");
+    } else {
+        console.warn("Tutorials container not found in index.html!");
+    }
+
+    if (document.getElementById("galleries-container")) {
+        fetchContent("galleries", "galleries-container");
+    } else {
+        console.warn("Galleries container not found in index.html!");
+    }
+});
+
 
 // ✅ Export functions for use in other scripts
 export { fetchContent, addContent, handleEdit, handleDelete, uploadImage, uploadVideo };

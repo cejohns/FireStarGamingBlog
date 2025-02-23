@@ -46,4 +46,17 @@ router.delete("/:id", async (req, res) => {
     }
 });
 
+router.put("/publish/:id", async (req, res) => {
+    try {
+        const tutorial = await Tutorial.findByIdAndUpdate(req.params.id, { published: true }, { new: true });
+        if (!tutorial) return res.status(404).json({ error: "Tutorial not found" });
+
+        res.json({ message: "Tutorial published", tutorial });
+    } catch (err) {
+        console.error("Error publishing tutorial:", err);
+        res.status(500).json({ error: "Failed to publish tutorial" });
+    }
+});
+
+
 module.exports = router;

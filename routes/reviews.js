@@ -30,17 +30,20 @@ router.get("/", async (req, res) => {
     }
 });
 
+
 // GET a single review by ID
 router.get("/:id", async (req, res) => {
     try {
         const review = await Review.findById(req.params.id);
         if (!review) return res.status(404).json({ error: "Review not found" });
+
         res.status(200).json(review);
     } catch (err) {
         console.error("Error fetching review:", err);
         res.status(500).json({ error: "Failed to fetch review" });
     }
 });
+
 
 // POST a new review
 router.post("/", validateReview, async (req, res) => {
@@ -77,5 +80,49 @@ router.delete("/:id", async (req, res) => {
         res.status(500).json({ error: "Failed to delete review" });
     }
 });
+
+// ✅ Ensure the approve route exists
+router.put("/approve/:id", async (req, res) => {
+    try {
+        const review = await Review.findByIdAndUpdate(req.params.id, { approved: true }, { new: true });
+        if (!review) return res.status(404).json({ error: "Review not found" });
+
+        res.json({ message: "Review approved", review });
+    } catch (err) {
+        console.error("Error approving review:", err);
+        res.status(500).json({ error: "Failed to approve review" });
+    }
+});
+
+// ✅ Ensure the publish route exists
+router.put("/publish/:id", async (req, res) => {
+    try {
+        const review = await Review.findById(req.params.id);
+        if (!review) return res.status(404).json({ error: "Review not found" });
+
+        // Only publish with required fields
+        review.published = true;
+        review.publishedAt = new Date();
+
+        await review.save();
+
+        res.json({
+            message: "Review published successfully",
+            review: {
+                title: review.title,
+                author: review.author,
+                summary: review.summary,
+                content: review.content,
+                rating: review.rating,
+                category: review.category,
+                publishedAt: review.publishedAt
+            }
+        });
+    } catch (err) {
+        console.error("Error publishing review:", err);
+        res.status(500).json({ error: "Failed to publish review" });
+    }
+});
+
 
 module.exports = router;

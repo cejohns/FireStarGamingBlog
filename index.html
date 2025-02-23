@@ -40,7 +40,7 @@
             <h2>🔥 Trending Now</h2>
             <div class="articles-grid">
                 <div class="article-card">
-                    <img src="https://via.placeholder.com/300x200" alt="Trending Article">
+                    <img src="images/slotsImage.jpg" alt="Trending Article">
                     <div class="content">
                         <h3>Article Title</h3>
                         <small>By Author | January 16, 2025</small>
@@ -55,7 +55,7 @@
     <section id="review-content">
         <h2>Latest Reviews</h2>
         <div class="scroll-wrapper">
-            <div id="reviews-container" class="scroll-content"></div>
+            <div id="home-reviews-container" class="scroll-content"></div>
         </div>
     </section>
     
@@ -72,7 +72,20 @@
             <div id="posts-container" class="scroll-content"></div>
         </div>
     </section>
+
+    <form id="add-post-form">
+        <input type="text" id="post-title" placeholder="Title" required>
+        <textarea id="post-content" placeholder="Write your post here..." required></textarea>
+        <button type="submit">Add Post</button>
+    </form>
     
+    
+<!-- Publish Button -->
+<button id="publish-button" class="publish-button">Publish</button>
+
+<!-- Containers for Tutorials & Galleries -->
+<div id="tutorials-container"></div>
+<div id="galleries-container"></div>
 
 
     
@@ -92,6 +105,37 @@
             fetchContent("reviews", "reviews-container");
             fetchContent("videos", "videos-container");
         });
+
+        async function fetchPublishedReviews() {
+    try {
+        const response = await fetch("http://localhost:3000/api/reviews");
+        if (!response.ok) throw new Error("Failed to fetch reviews");
+
+        const reviews = await response.json();
+        const container = document.getElementById("home-reviews-container");
+
+        // Filter only published reviews
+        const publishedReviews = reviews.filter(review => review.published);
+
+        container.innerHTML = publishedReviews.length
+            ? publishedReviews.map(review => `
+                <div class="home-review">
+                    <h3>
+                        <a href="review.html?id=${review._id}">${review.title}</a>
+                    </h3>
+                    <p><strong>Author:</strong> ${review.author}</p>
+                    <p><strong>Category:</strong> ${review.category}</p>
+                    <p><strong>Published On:</strong> ${new Date(review.publishedAt).toLocaleDateString()}</p>
+                    <p>${review.summary}</p>
+                </div>
+            `).join("")
+            : "<p>No published reviews available.</p>";
+    } catch (error) {
+        console.error("Error fetching published reviews:", error);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", fetchPublishedReviews);
     </script>
     
     

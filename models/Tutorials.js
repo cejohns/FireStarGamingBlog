@@ -7,6 +7,7 @@ const TutorialSchema = new mongoose.Schema({
     content: { type: String, required: true },
     category: { type: String, required: true },
     approved: { type: Boolean, default: false }, // Admin approval system
+    published: { type: Boolean, default: false },// ✅ Added published status
     createdAt: { type: Date, default: Date.now }
 });
 
