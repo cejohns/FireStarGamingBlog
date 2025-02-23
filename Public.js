@@ -23,28 +23,27 @@ async function fetchPublishedReviews() {
 }
 
 // Fetch and render published tutorials
-async function fetchPublishedTutorials() {
+async function fetchPublishedContent(type, containerId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/tutorials`);
-        const tutorials = await response.json();
-        const container = document.getElementById("tutorials-container");
+        const response = await fetch(`${API_BASE_URL}/api/${type}`);
+        const data = await response.json();
 
-        container.innerHTML = tutorials
-            .filter(tutorial => tutorial.published)
-            .map(tutorial => `
-                <div>
-                    <h3>${tutorial.title}</h3>
-                    <p><strong>Author:</strong> ${tutorial.author}</p>
-                    <p><strong>Category:</strong> ${tutorial.category}</p>
-                    <p>${tutorial.content}</p>
-                </div>
-            `).join("");
+        const container = document.getElementById(containerId);
+        container.innerHTML = data.map(item => `
+            <div>
+              <h3><a href="post.html?id=${item._id}">${item.title}</a></h3>
+                <p><strong>Author:</strong> ${item.author}</p>
+                <p><strong>Category:</strong> ${item.category}</p>
+                <p><strong>Published On:</strong> ${new Date(item.publishedAt).toLocaleDateString()}</p>
+                <p>${item.summary}</p>
+            </div>
+        `).join("");
     } catch (error) {
-        console.error("Error fetching published tutorials:", error);
+        console.error(`Error fetching ${type}:`, error);
     }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    fetchPublishedReviews();
-    fetchPublishedTutorials();
+    if (document.getElementById("tutorials-container")) fetchPublishedContent("tutorials", "tutorials-container");
+    if (document.getElementById("posts-container")) fetchPublishedContent("posts", "posts-container");
 });

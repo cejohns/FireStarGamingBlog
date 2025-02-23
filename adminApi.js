@@ -409,6 +409,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    const sections = ["reviews", "tutorials", "posts"];
+    
+    sections.forEach((type) => {
+        if (document.getElementById(`${type}-container`)) {
+            fetchContent(type, `${type}-container`);
+        }
+    });
+
+    document.querySelectorAll(".publish-button").forEach((btn) => {
+        btn.addEventListener("click", () => handlePublish(btn.dataset.type, btn.dataset.id));
+    });
+});
+
+
 
 // ✅ Export functions for use in other scripts
 export { fetchContent, addContent, handleEdit, handleDelete, uploadImage, uploadVideo };

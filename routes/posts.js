@@ -128,5 +128,43 @@ router.put("/approve/:id", async (req, res) => {
     }
 });
 
+// ✅ Approve a blog post
+router.put("/approve/:id", async (req, res) => {
+    try {
+        const post = await Post.findByIdAndUpdate(req.params.id, { approved: true }, { new: true });
+        if (!post) return res.status(404).json({ error: "Post not found" });
+
+        res.json({ message: "Post approved", post });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to approve post" });
+    }
+});
+
+// ✅ Publish a blog post
+router.put("/publish/:id", async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ error: "Post not found" });
+
+        post.published = true;
+        post.publishedAt = new Date();
+        await post.save();
+
+        res.json({ message: "Post published successfully", post });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to publish post" });
+    }
+});
+
+// ✅ Get all published blog posts
+router.get("/", async (req, res) => {
+    try {
+        const posts = await Post.find({ published: true });
+        res.json(posts);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to fetch posts" });
+    }
+});
+
 
 module.exports = router;

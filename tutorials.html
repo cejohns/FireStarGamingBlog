@@ -38,7 +38,7 @@
     <script type="module">
         async function fetchTutorials() {
             try {
-                const response = await fetch('http://localhost:3001/api/posts?category=Tutorials'); // Adjust API endpoint
+                const response = await fetch('http://localhost:3000/api/posts?category=Tutorials'); // Adjust API endpoint
                 if (!response.ok) throw new Error("Failed to fetch tutorials");
                 const tutorials = await response.json();
 

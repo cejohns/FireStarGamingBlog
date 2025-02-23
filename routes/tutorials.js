@@ -59,4 +59,43 @@ router.put("/publish/:id", async (req, res) => {
 });
 
 
+// ✅ Approve a tutorial
+router.put("/approve/:id", async (req, res) => {
+    try {
+        const tutorial = await Tutorial.findByIdAndUpdate(req.params.id, { approved: true }, { new: true });
+        if (!tutorial) return res.status(404).json({ error: "Tutorial not found" });
+
+        res.json({ message: "Tutorial approved", tutorial });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to approve tutorial" });
+    }
+});
+
+// ✅ Publish a tutorial
+router.put("/publish/:id", async (req, res) => {
+    try {
+        const tutorial = await Tutorial.findById(req.params.id);
+        if (!tutorial) return res.status(404).json({ error: "Tutorial not found" });
+
+        tutorial.published = true;
+        tutorial.publishedAt = new Date();
+        await tutorial.save();
+
+        res.json({ message: "Tutorial published successfully", tutorial });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to publish tutorial" });
+    }
+});
+
+// ✅ Get all published tutorials
+router.get("/", async (req, res) => {
+    try {
+        const tutorials = await Tutorial.find({ published: true });
+        res.json(tutorials);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to fetch tutorials" });
+    }
+});
+
+
 module.exports = router;
