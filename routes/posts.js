@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require("mongoose");
 const Post = require('../models/Post');
 const { body, validationResult } = require('express-validator');
 
@@ -7,6 +8,7 @@ const { body, validationResult } = require('express-validator');
 // Middleware for validation
 const validatePost = [
     body('title').isString().withMessage('Title must be a string'),
+    body('author').isString().withMessage('Author must be a string'),
     body('summary').isString().withMessage('Summary must be a string'),
     body('content').isString().withMessage('Content must be a string'),
     body('category').isString().withMessage('Category must be a string'),
@@ -51,10 +53,10 @@ router.get('/:id', async (req, res) => {
 
 // Add a new post
 router.post('/', validatePost, async (req, res) => {
-    const { title, summary, content, category } = req.body;
+    const { title,author, summary, content, category } = req.body;
 
     try {
-        const newPost = new Post({ title, summary, content, category });
+        const newPost = new Post({ title, author, summary, content, category });
         const savedPost = await newPost.save();
         res.status(201).json({ message: 'Post created successfully', post: savedPost });
     } catch (err) {
@@ -67,7 +69,7 @@ router.post('/', validatePost, async (req, res) => {
 router.put('/:id', validatePost, async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, summary, content, category } = req.body;
+        const { title, author, summary, content, category } = req.body;
         
         const errors = validatePost(req);
         if (!errors.isEmpty()) {
@@ -76,7 +78,7 @@ router.put('/:id', validatePost, async (req, res) => {
 
         const updatedPost = await Post.findByIdAndUpdate(
             id,
-            { title, summary, content, category },
+            { title, author, summary, content, category },
             { new: true }
         );
 
@@ -143,16 +145,36 @@ router.put("/approve/:id", async (req, res) => {
 // ✅ Publish a blog post
 router.put("/publish/:id", async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id);
-        if (!post) return res.status(404).json({ error: "Post not found" });
+        console.log(`Received publish request for Post ID: ${req.params.id}`);
 
+        // ✅ Validate ObjectId
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            console.error("Invalid Post ID:", req.params.id);
+            return res.status(400).json({ error: "Invalid post ID" });
+        }
+
+        const post = await Post.findById(req.params.id);
+        if (!post) {
+            console.error("Post not found:", req.params.id);
+            return res.status(404).json({ error: "Post not found" });
+        }
+
+        // ✅ Ensure `author` is not missing before updating
+        if (!post.author) {
+            console.error("Error: Author field is missing for post ID:", req.params.id);
+            return res.status(400).json({ error: "Post must have an author before publishing." });
+        }
+
+        // ✅ Ensure author is not lost when updating
         post.published = true;
         post.publishedAt = new Date();
         await post.save();
 
+        console.log("Post published successfully:", post);
         res.json({ message: "Post published successfully", post });
     } catch (err) {
-        res.status(500).json({ error: "Failed to publish post" });
+        console.error("Unexpected error while publishing post:", err);
+        res.status(500).json({ error: "Failed to publish post", details: err.message });
     }
 });
 

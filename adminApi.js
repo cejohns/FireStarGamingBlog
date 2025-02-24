@@ -1,4 +1,79 @@
 const API_BASE_URL = "http://localhost:3000"; // Ensure it's HTTP if HTTPS is causing issues
+
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("✅ adminApi.js Loaded");
+
+    const postForm = document.getElementById("add-post-form");
+    const showFormButton = document.getElementById("show-add-post-form");
+
+    if (!postForm || !showFormButton) {
+        console.warn("❌ Post form or button not found in admin_panel.html!");
+        return;
+    }
+
+    // ✅ Show form when "Add New Post" button is clicked
+    showFormButton.addEventListener("click", () => {
+        postForm.style.display = "block";
+        showFormButton.style.display = "none"; 
+    });
+
+    // ✅ Prevent duplicate event listeners
+    if (postForm.dataset.listenerAttached) {
+        console.warn("⚠ Event listener already attached to form.");
+        return;
+    }
+    postForm.dataset.listenerAttached = true;
+
+    // ✅ Handle form submission
+    postForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        console.log("✅ Form submitted!");
+
+        const fields = ["title", "author", "summary", "content", "category"];
+        let formData = {};
+
+        for (let id of fields) {
+            let field = document.getElementById(id);
+            if (!field) {
+                console.error(`❌ ERROR: Field #${id} is missing!`);
+                alert(`Field ${id} is missing!`);
+                return;
+            }
+            formData[id] = field.value.trim();
+            console.log(`✅ ${id}:`, formData[id]);
+        }
+
+        if (Object.values(formData).some(value => value === "")) {
+            alert("All fields are required.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/posts`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to add post: ${errorText}`);
+            }
+
+            alert("🎉 Post added successfully!");
+            postForm.reset();
+            postForm.style.display = "none"; 
+            showFormButton.style.display = "block"; 
+        } catch (error) {
+            console.error("❌ Error submitting post:", error);
+            alert("Failed to submit post.");
+        }
+    });
+});
+
+
+
+
 // ✅ Generic Fetch Function for All Content Types
 async function fetchContent(type, containerId) {
     try {
@@ -238,7 +313,7 @@ async function handlePublish(type, id) {
         if (!response.ok) throw new Error(`Failed to publish ${type}`);
 
         const updatedItem = await response.json();
-
+        console.log(`${type} published successfully:`, updatedItem);
         // ✅ Store published item in localStorage
         let publishedItems = JSON.parse(localStorage.getItem(`${type}-published`)) || [];
         publishedItems.push(updatedItem);
@@ -329,7 +404,7 @@ document.getElementById("add-post-form").addEventListener("submit", async (e) =>
     e.target.reset();
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+/*document.addEventListener("DOMContentLoaded", () => {
     const addPostForm = document.getElementById("add-post-form");
 
     if (addPostForm) {
@@ -340,6 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Collect form data
             const title = document.getElementById("post-title").value;
             const content = document.getElementById("post-content").value;
+            const author = document.getElementById("post-author").value;
 
             try {
                 const response = await fetch("http://localhost:3000/api/posts", {
@@ -360,7 +436,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         console.warn("Form with id 'add-post-form' not found in admin_panel.html!");
     }
-});
+});*/
 
 
 
@@ -464,8 +540,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.log("Form submitted!"); // Debugging
 
                 // Collect form data
-                const title = document.getElementById("post-title").value;
-                const content = document.getElementById("post-content").value;
+                const title = document.getElementById("title").value;
+                const content = document.getElementById("content").value;
 
                 try {
                     const response = await fetch("http://localhost:3000/api/posts", {
@@ -488,6 +564,73 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    const postForm = document.getElementById("add-post-form");
+    const showFormButton = document.getElementById("show-add-post-form");
+
+    if (!postForm || !showFormButton) {
+        console.warn("Post form or show form button not found in admin_panel.html!");
+        return;
+    }
+
+    // ✅ Show form when "Add New Post" button is clicked
+    showFormButton.addEventListener("click", () => {
+        postForm.style.display = "block";
+        showFormButton.style.display = "none"; // Hide the button after clicking
+    });
+
+    // ✅ Handle form submission
+    postForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // ✅ Ensure all form fields exist
+        const titleInput = document.getElementById("title");
+        const authorInput = document.getElementById("author");
+        const summaryInput = document.getElementById("summary");
+        const contentInput = document.getElementById("content");
+        const categoryInput = document.getElementById("category");
+
+        if (!titleInput || !authorInput || !summaryInput || !contentInput || !categoryInput) {
+            console.error("One or more form fields are missing!");
+            alert("Please fill in all fields.");
+            return;
+        }
+
+        const title = titleInput.value.trim();
+        const author = authorInput.value.trim();
+        const summary = summaryInput.value.trim();
+        const content = contentInput.value.trim();
+        const category = categoryInput.value;
+
+        if (!title || !author || !summary || !content || !category) {
+            alert("All fields are required.");
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:3000/api/posts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, author, summary, content, category }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to add post: ${errorText}`);
+            }
+
+            alert("Post added successfully!");
+            postForm.reset();
+            postForm.style.display = "none"; // Hide form after submission
+            showFormButton.style.display = "block"; // Show "Add New Post" button again
+        } catch (error) {
+            console.error("Error submitting post:", error);
+            alert("Failed to submit post.");
+        }
+    });
+});
+
 
 
 
