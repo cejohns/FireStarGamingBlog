@@ -6,6 +6,7 @@ const { body, validationResult } = require("express-validator");
 // Validation middleware
 const validateReview = [
     body("title").isString().withMessage("Title must be a string"),
+    body('author').isString().withMessage('Author must be a string'),
     body("summary").isString().withMessage("Summary must be a string"),
     body("content").isString().withMessage("Content must be a string"),
     body("rating").isInt({ min: 0, max: 10 }).withMessage("Rating must be between 0 and 10"),
@@ -98,9 +99,16 @@ router.put("/approve/:id", async (req, res) => {
 router.put("/publish/:id", async (req, res) => {
     try {
         const review = await Review.findById(req.params.id);
-        if (!review) return res.status(404).json({ error: "Review not found" });
+        if (!review) {
+            return res.status(404).json({ error: "Review not found" });
+        }
 
-        // Only publish with required fields
+        // ✅ Ensure `author` is present before publishing
+        if (!review.author) {
+            return res.status(400).json({ error: "Author is required to publish this review" });
+        }
+
+        // ✅ Set published status
         review.published = true;
         review.publishedAt = new Date();
 

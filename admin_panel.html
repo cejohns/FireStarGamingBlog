@@ -80,38 +80,38 @@
                 <div id="posts-container"></div>
             </div>
 
-            <!-- Game Reviews -->
-            <div class="content-section" id="reviews" style="display: none;">
-                <button id="show-add-review-form">Add Review</button>
-                <form id="add-review-form">
-                    <label for="review-title">Title:</label>
-                    <input type="text" id="review-title" required>
-                
-                    <label for="review-author">Author:</label>
-                    <input type="text" id="review-author" required>
-                
-                    <label for="review-summary">Summary:</label>
-                    <textarea id="review-summary" required></textarea>
-                
-                    <label for="review-content">Content:</label>
-                    <textarea id="review-content" required></textarea>
-                
-                    <label for="review-rating">Rating (0-10):</label>
-                    <input type="number" id="review-rating" min="0" max="10" required>
-                
-                    <label for="review-category">Category:</label>
-                    <select id="review-category" required>
-                        <option value="Video Games">Video Games</option>
-                        <option value="Technology">Technology</option>
-                        <option value="Gaming Hardware">Gaming Hardware</option>
-                    </select>
-                
-                    <button type="submit">Submit Review</button>
-                </form>
-                
-                
-                <div id="reviews-container"></div>
-            </div>
+          <!-- Game Reviews -->
+<div class="content-section" id="reviews" style="display: none;">
+    <button id="show-add-review-form">Add Review</button>
+    <form id="add-review-form">
+        <label for="review-title">Title:</label>
+        <input type="text" id="review-title" name="title" required>
+    
+        <label for="review-author">Author:</label>
+        <input type="text" id="review-author" name="author" required>
+    
+        <label for="review-summary">Summary:</label>
+        <textarea id="review-summary" name="summary" required></textarea>
+    
+        <label for="review-content">Content:</label>
+        <textarea id="review-content" name="content" required></textarea>
+    
+        <label for="review-rating">Rating (0-10):</label>
+        <input type="number" id="review-rating" name="rating" min="0" max="10" required>
+    
+        <label for="review-category">Category:</label>
+        <select id="review-category" name="category" required>
+            <option value="">Select Category</option>
+            <option value="Video Games">Video Games</option>
+            <option value="Technology">Technology</option>
+            <option value="Gaming Hardware">Gaming Hardware</option>
+        </select>
+    
+        <button type="submit">Submit Review</button>
+    </form>
+
+    <div id="reviews-container"></div>
+</div>
 
             <!-- Tutorials -->
             <div class="content-section" id="tutorials" style="display: none;">
@@ -141,6 +141,83 @@
                 
                 <div id="tutorials-container"></div>
             </div>
+<!-- Edit Post Form -->
+<form id="edit-post-form" style="display: none;">
+    <h3>Edit Post</h3>
+    <label for="edit-post-title">Title:</label>
+    <input type="text" id="edit-post-title" name="title" required>
+
+    <label for="edit-post-author">Author:</label>
+    <input type="text" id="edit-post-author" name="author" required>
+
+    <label for="edit-post-summary">Summary:</label>
+    <textarea id="edit-post-summary" name="summary" required></textarea>
+
+    <label for="edit-post-content">Content:</label>
+    <textarea id="edit-post-content" name="content" required></textarea>
+
+    <label for="edit-post-category">Category:</label>
+    <select id="edit-post-category" name="category" required>
+        <option value="Video Games">Video Games</option>
+        <option value="Game Development">Game Development</option>
+        <option value="New Tech">New Tech</option>
+    </select>
+
+    <button type="submit">Update Post</button>
+</form>
+
+<!-- Edit Review Form -->
+<form id="edit-review-form" style="display: none;">
+    <h3>Edit Review</h3>
+    <label for="edit-review-title">Title:</label>
+    <input type="text" id="edit-review-title" name="title" required>
+
+    <label for="edit-review-author">Author:</label>
+    <input type="text" id="edit-review-author" name="author" required>
+
+    <label for="edit-review-summary">Summary:</label>
+    <textarea id="edit-review-summary" name="summary" required></textarea>
+
+    <label for="edit-review-content">Content:</label>
+    <textarea id="edit-review-content" name="content" required></textarea>
+
+    <label for="edit-review-rating">Rating (0-10):</label>
+    <input type="number" id="edit-review-rating" name="rating" min="0" max="10" required>
+
+    <label for="edit-review-category">Category:</label>
+    <select id="edit-review-category" name="category" required>
+        <option value="Video Games">Video Games</option>
+        <option value="Technology">Technology</option>
+        <option value="Gaming Hardware">Gaming Hardware</option>
+    </select>
+
+    <button type="submit">Update Review</button>
+</form>
+
+<!-- Edit Tutorial Form -->
+<form id="edit-tutorial-form" style="display: none;">
+    <h3>Edit Tutorial</h3>
+    <label for="edit-tutorial-title">Title:</label>
+    <input type="text" id="edit-tutorial-title" name="title" required>
+
+    <label for="edit-tutorial-author">Author:</label>
+    <input type="text" id="edit-tutorial-author" name="author" required>
+
+    <label for="edit-tutorial-summary">Summary:</label>
+    <textarea id="edit-tutorial-summary" name="summary" required></textarea>
+
+    <label for="edit-tutorial-content">Tutorial Content:</label>
+    <textarea id="edit-tutorial-content" name="content" required></textarea>
+
+    <label for="edit-tutorial-category">Category:</label>
+    <select id="edit-tutorial-category" name="category" required>
+        <option value="Video Games">Video Games</option>
+        <option value="Game Development">Game Development</option>
+        <option value="New Tech">New Tech</option>
+    </select>
+
+    <button type="submit">Update Tutorial</button>
+</form>
 
             <!-- Picture Galleries -->
             <div class="content-section" id="galleries" style="display: none;">
@@ -196,68 +273,91 @@
 
 
 <script type="module">
-  import { uploadImage, addContent, fetchContent } from "./adminApi.js";
-
-    // Toggle tabs functionality
-    document.querySelectorAll(".tab-btn").forEach(button => {
-        button.addEventListener("click", () => {
-            document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
-            button.classList.add("active");
-
-            document.querySelectorAll(".content-section").forEach(section => {
-                section.style.display = "none";
-            });
-
-            document.getElementById(button.dataset.target).style.display = "block";
-        });
-    });
-
-    // Toggle visibility of add forms
-    document.querySelectorAll("[id^=show-add]").forEach(button => {
-        button.addEventListener("click", () => {
-            const form = document.getElementById(button.id.replace("show-", ""));
-            form.style.display = form.style.display === "none" ? "block" : "none";
-        });
-    });
-
-    // Handle gallery form submission
+    import { uploadImage, addContent, fetchContent } from "./adminApi.js";
+  
     document.addEventListener("DOMContentLoaded", () => {
+        console.log("✅ adminApi.js loaded successfully!");
+  
+        // ✅ Toggle tabs functionality
+        document.querySelectorAll(".tab-btn").forEach(button => {
+            button.addEventListener("click", () => {
+                document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+                button.classList.add("active");
+  
+                document.querySelectorAll(".content-section").forEach(section => {
+                    section.style.display = "none";
+                });
+  
+                const targetSection = document.getElementById(button.dataset.target);
+                if (targetSection) {
+                    targetSection.style.display = "block";
+                } else {
+                    console.warn(`⚠ Target section "${button.dataset.target}" not found.`);
+                }
+            });
+        });
+  
+        // ✅ Toggle visibility of add forms
+        document.querySelectorAll("[id^=show-add]").forEach(button => {
+            button.addEventListener("click", () => {
+                const formId = button.id.replace("show-", "");
+                const form = document.getElementById(formId);
+  
+                if (form) {
+                    form.style.display = form.style.display === "none" ? "block" : "none";
+                } else {
+                    console.warn(`⚠ Form "${formId}" not found.`);
+                }
+            });
+        });
+  
+        // ✅ Handle gallery form submission
         const galleryForm = document.getElementById("add-gallery-form");
-
         if (galleryForm) {
             galleryForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
-
-                const title = document.getElementById("gallery-title").value;
-                const imageFile = document.getElementById("gallery-image").files[0];
-
-               
-
-                if (!title || !imageFile) {
-                    alert("All fields are required!");
+  
+                const titleInput = document.getElementById("gallery-title");
+                const imageInput = document.getElementById("gallery-image");
+  
+                if (!titleInput || !imageInput) {
+                    alert("⚠ Missing required input fields!");
                     return;
                 }
-
+  
+                const title = titleInput.value.trim();
+                const imageFile = imageInput.files[0];
+  
+                if (!title || !imageFile) {
+                    alert("⚠ All fields are required!");
+                    return;
+                }
+  
                 try {
+                    console.log("📤 Uploading image...");
                     const imageUrl = await uploadImage(imageFile);
-
+  
                     if (!imageUrl) {
-                        throw new Error("Failed to upload image");
+                        throw new Error("❌ Failed to upload image.");
                     }
-
+  
                     const galleryData = { title, imageUrl };
                     await addContent("galleries", galleryData);
-
+  
                     galleryForm.reset();
+                    console.log("✅ Gallery added successfully!");
                     fetchContent("galleries", "galleries-container");
                 } catch (error) {
-                    console.error("Error adding gallery image:", error);
-                    alert("Error adding gallery image: " + error.message);
+                    console.error("❌ Error adding gallery image:", error);
+                    alert("❌ Error adding gallery image: " + error.message);
                 }
             });
+        } else {
+            console.warn("⚠ Gallery form not found.");
         }
     });
-</script>
+  </script>
+  
 
 </body>
 </html>
