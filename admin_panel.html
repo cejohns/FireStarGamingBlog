@@ -234,7 +234,18 @@
                     <img id="previewImage" src="#" alt="Image Preview" style="display: none;">
                   </div>
             </div>
-
+            <form id="edit-gallery-form" style="display: none;">
+                <input type="hidden" id="edit-gallery-id" />
+            
+                <label for="edit-gallery-title">Title:</label>
+                <input type="text" id="edit-gallery-title" required />
+            
+                <label for="edit-gallery-image">Change Image (optional):</label>
+                <input type="file" id="edit-gallery-image" accept="image/*" />
+            
+                <button type="submit">Update Image</button>
+            </form>
+            
             <!-- Videos -->
             <div class="content-section" id="videos" style="display: none;">
                 <button id="show-add-video-form">Add Video</button>
@@ -250,6 +261,18 @@
                 <div id="videos-container"></div>
             </div>
         </div>
+        <form id="edit-video-form" style="display: none;">
+            <input type="hidden" id="edit-video-id" />
+        
+            <label for="edit-video-title">Title:</label>
+            <input type="text" id="edit-video-title" required />
+        
+            <label for="edit-video-file">Replace Video (optional):</label>
+            <input type="file" id="edit-video-file" accept="video/*" />
+        
+            <button type="submit">Update Video</button>
+        </form>
+        
     </section>
 
     <!-- ANALYTICS -->

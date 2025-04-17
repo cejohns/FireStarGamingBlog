@@ -7,6 +7,13 @@ const formMappings = {
     "add-tutorial-form": "tutorials",
     "add-gallery-form": "galleries",
     "add-video-form": "videos",
+
+     // Edit Forms (New!)
+     "edit-post-form": "posts",
+     "edit-review-form": "reviews",
+     "edit-tutorial-form": "tutorials",
+     "edit-gallery-form": "galleries",
+     "edit-video-form": "videos"
 };
 
 // ✅ Attach form submission event listeners
