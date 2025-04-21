@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Firestar Gaming</title>
-    <script type="module" src="adminApi.js"></script>
     <link rel="stylesheet" href="admin_panel.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -229,10 +228,9 @@
                     <input type="file" id="gallery-image"name="image" accept="image/*"  required />
                     <button type="submit">Upload Image</button>
                 </form>
-                <div id="galleries-container">
-                    <h2>Preview:</h2>
-                    <img id="previewImage" src="#" alt="Image Preview" style="display: none;">
-                  </div>
+                <div id="galleries-container"></div> 
+                </div>
+                
             </div>
             <form id="edit-gallery-form" style="display: none;">
                 <input type="hidden" id="edit-gallery-id" />
@@ -274,6 +272,17 @@
         </form>
         
     </section>
+
+    <!-- 🔧 Edit Sidebar as Section -->
+<section id="edit-sidebar" class="edit-sidebar" style="display: none;">
+    <div class="sidebar-header">
+        <h2>Edit Content</h2>
+        <button id="close-sidebar" class="close-btn" title="Close">✖</button>
+    </div>
+    <div id="edit-form-wrapper"></div>
+</section>
+
+    
 
     <!-- ANALYTICS -->
     <section id="analytics">
@@ -320,6 +329,16 @@
                     console.warn(`⚠ Target section "${button.dataset.target}" not found.`);
                 }
             });
+
+
+            document.getElementById("close-sidebar").addEventListener("click", () => {
+    const sidebar = document.getElementById("edit-sidebar");
+    const wrapper = document.getElementById("edit-form-wrapper");
+
+    sidebar.style.display = "none";
+    wrapper.innerHTML = ""; // clear any loaded form
+});
+
         });
   
         // ✅ Toggle visibility of add forms
@@ -340,48 +359,347 @@
         const galleryForm = document.getElementById("add-gallery-form");
         if (galleryForm) {
             galleryForm.addEventListener("submit", async (e) => {
-                e.preventDefault();
-  
-                const titleInput = document.getElementById("gallery-title");
-                const imageInput = document.getElementById("gallery-image");
-  
-                if (!titleInput || !imageInput) {
-                    alert("⚠ Missing required input fields!");
-                    return;
-                }
-  
-                const title = titleInput.value.trim();
-                const imageFile = imageInput.files[0];
-  
-                if (!title || !imageFile) {
-                    alert("⚠ All fields are required!");
-                    return;
-                }
-  
-                try {
-                    console.log("📤 Uploading image...");
-                    const imageUrl = await uploadImage(imageFile);
-  
-                    if (!imageUrl) {
-                        throw new Error("❌ Failed to upload image.");
-                    }
-  
-                    const galleryData = { title, imageUrl };
-                    await addContent("galleries", galleryData);
-  
-                    galleryForm.reset();
-                    console.log("✅ Gallery added successfully!");
-                    fetchContent("galleries", "galleries-container");
-                } catch (error) {
-                    console.error("❌ Error adding gallery image:", error);
-                    alert("❌ Error adding gallery image: " + error.message);
-                }
+    e.preventDefault();
+
+    const titleInput = document.getElementById("gallery-title");
+    const imageInput = document.getElementById("gallery-image");
+    const previewImage = document.getElementById("previewImage");
+
+    if (imageInput && previewImage) {
+    imageInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewImage.style.display = "block";
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewImage.style.display = "none";
+        }
+    });
+}
+
+    if (!titleInput || !imageInput) {
+        alert("⚠ Missing required input fields!");
+        return;
+    }
+
+    const title = titleInput.value.trim();
+    const imageFile = imageInput.files[0];
+
+    if (!title || !imageFile) {
+        alert("⚠ Title and image file are required!");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("image", imageFile); // ✅ Must match Multer field name in backend
+
+    console.log("📤 Uploading image...");
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+    }
+
+    try {
+        const response = await fetch("http://localhost:3000/api/galleries", {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error("Failed to add galleries: " + errText);
+        }
+
+        alert("✅ Image uploaded successfully!");
+        galleryForm.reset();
+        fetchContent("galleries", "galleries-container");
+    } catch (error) {
+        console.error("❌ Error adding gallery image:", error);
+        alert("❌ Error adding gallery image: " + error.message);
+    }
+
+
             });
         } else {
             console.warn("⚠ Gallery form not found.");
         }
     });
+
+    const videoForm = document.getElementById("add-video-form");
+if (videoForm) {
+    videoForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const titleInput = document.getElementById("video-title");
+        const videoInput = document.getElementById("video-file");
+
+        if (!titleInput || !videoInput) {
+            alert("⚠ Missing required input fields!");
+            return;
+        }
+
+        const title = titleInput.value.trim();
+        const videoFile = videoInput.files[0];
+
+        if (!title || !videoFile) {
+            alert("⚠ Title and video file are required!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("video", videoFile); // ✅ Must match Multer field name on server
+
+        console.log("📤 Uploading video...");
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}:`, value);
+        }
+
+        try {
+            const response = await fetch("http://localhost:3000/api/videos", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error("Failed to add video: " + errText);
+            }
+
+            alert("✅ Video uploaded successfully!");
+            videoForm.reset();
+            fetchContent("videos", "videos-container");
+        } catch (error) {
+            console.error("❌ Error uploading video:", error);
+            alert("❌ Error uploading video: " + error.message);
+        }
+    });
+} else {
+    console.warn("⚠ Video form not found.");
+}
+
+// 📄 Show & fill Edit Post Form
+window.showEditPostForm = function(post) {
+    const form = document.getElementById("edit-post-form");
+    form.style.display = "block";
+
+    document.getElementById("edit-post-title").value = post.title;
+    document.getElementById("edit-post-author").value = post.author;
+    document.getElementById("edit-post-summary").value = post.summary;
+    document.getElementById("edit-post-content").value = post.content;
+    document.getElementById("edit-post-category").value = post.category;
+
+    // Store post ID in a dataset or global var
+    form.dataset.id = post._id;
+};
+
+// 🎮 Show & fill Edit Review Form
+window.showEditReviewForm = function(review) {
+    const form = document.getElementById("edit-review-form");
+    form.style.display = "block";
+
+    document.getElementById("edit-review-title").value = review.title;
+    document.getElementById("edit-review-author").value = review.author;
+    document.getElementById("edit-review-summary").value = review.summary;
+    document.getElementById("edit-review-content").value = review.content;
+    document.getElementById("edit-review-rating").value = review.rating;
+    document.getElementById("edit-review-category").value = review.category;
+
+    form.dataset.id = review._id;
+};
+
+// 🧠 Show & fill Edit Tutorial Form
+window.showEditTutorialForm = function(tutorial) {
+    const form = document.getElementById("edit-tutorial-form");
+    form.style.display = "block";
+
+    document.getElementById("edit-tutorial-title").value = tutorial.title;
+    document.getElementById("edit-tutorial-author").value = tutorial.author;
+    document.getElementById("edit-tutorial-summary").value = tutorial.summary;
+    document.getElementById("edit-tutorial-content").value = tutorial.content;
+    document.getElementById("edit-tutorial-category").value = tutorial.category;
+
+    form.dataset.id = tutorial._id;
+};
+
+window.showEditGalleryForm = function (gallery) {
+    const form = document.getElementById("edit-gallery-form");
+    form.style.display = "block";
+
+    document.getElementById("edit-gallery-id").value = gallery._id;
+    document.getElementById("edit-gallery-title").value = gallery.title;
+};
+window.showEditVideoForm = function (video) {
+    const form = document.getElementById("edit-video-form");
+    form.style.display = "block";
+
+    document.getElementById("edit-video-id").value = video._id;
+    document.getElementById("edit-video-title").value = video.title;
+};
+
+
+
+
+// ✏️ Edit Post Submit
+document.getElementById("edit-post-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = e.target.dataset.id;
+    const payload = {
+        title: document.getElementById("edit-post-title").value,
+        author: document.getElementById("edit-post-author").value,
+        summary: document.getElementById("edit-post-summary").value,
+        content: document.getElementById("edit-post-content").value,
+        category: document.getElementById("edit-post-category").value,
+    };
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/posts/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) throw new Error("Failed to update post");
+
+        alert("✅ Post updated!");
+        e.target.reset();
+        e.target.style.display = "none";
+        fetchContent("posts", "posts-container");
+    } catch (err) {
+        console.error("❌ Error updating post:", err);
+        alert("❌ " + err.message);
+    }
+});
+
+// ✏️ Edit Review Submit
+document.getElementById("edit-review-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = e.target.dataset.id;
+    const payload = {
+        title: document.getElementById("edit-review-title").value,
+        author: document.getElementById("edit-review-author").value,
+        summary: document.getElementById("edit-review-summary").value,
+        content: document.getElementById("edit-review-content").value,
+        rating: parseFloat(document.getElementById("edit-review-rating").value),
+        category: document.getElementById("edit-review-category").value,
+    };
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/reviews/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) throw new Error("Failed to update review");
+
+        alert("✅ Review updated!");
+        e.target.reset();
+        e.target.style.display = "none";
+        fetchContent("reviews", "reviews-container");
+    } catch (err) {
+        console.error("❌ Error updating review:", err);
+        alert("❌ " + err.message);
+    }
+});
+
+// ✏️ Edit Tutorial Submit
+document.getElementById("edit-tutorial-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = e.target.dataset.id;
+    const payload = {
+        title: document.getElementById("edit-tutorial-title").value,
+        author: document.getElementById("edit-tutorial-author").value,
+        summary: document.getElementById("edit-tutorial-summary").value,
+        content: document.getElementById("edit-tutorial-content").value,
+        category: document.getElementById("edit-tutorial-category").value,
+    };
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/tutorials/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) throw new Error("Failed to update tutorial");
+
+        alert("✅ Tutorial updated!");
+        e.target.reset();
+        e.target.style.display = "none";
+        fetchContent("tutorials", "tutorials-container");
+    } catch (err) {
+        console.error("❌ Error updating tutorial:", err);
+        alert("❌ " + err.message);
+    }
+});
+
+document.getElementById("edit-gallery-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById("edit-gallery-id").value;
+    const title = document.getElementById("edit-gallery-title").value.trim();
+    const imageFile = document.getElementById("edit-gallery-image").files[0];
+
+    const formData = new FormData();
+    formData.append("title", title);
+    if (imageFile) formData.append("image", imageFile);
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/galleries/${id}`, {
+            method: "PUT",
+            body: formData,
+        });
+
+        if (!response.ok) throw new Error("Failed to update gallery");
+
+        alert("✅ Gallery updated!");
+        e.target.reset();
+        e.target.style.display = "none";
+        fetchContent("galleries", "galleries-container");
+    } catch (err) {
+        console.error("❌ Error:", err);
+        alert("❌ " + err.message);
+    }
+});
+document.getElementById("edit-video-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById("edit-video-id").value;
+    const title = document.getElementById("edit-video-title").value.trim();
+    const videoFile = document.getElementById("edit-video-file").files[0];
+
+    const formData = new FormData();
+    formData.append("title", title);
+    if (videoFile) formData.append("video", videoFile);
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/videos/${id}`, {
+            method: "PUT",
+            body: formData,
+        });
+
+        if (!response.ok) throw new Error("Failed to update video");
+
+        alert("✅ Video updated!");
+        e.target.reset();
+        e.target.style.display = "none";
+        fetchContent("videos", "videos-container");
+    } catch (err) {
+        console.error("❌ Error:", err);
+        alert("❌ " + err.message);
+    }
+});
+
+
   </script>
+  ...
+  <script type="module" src="adminApi.js"></script>
+  </body>
   
 
 </body>

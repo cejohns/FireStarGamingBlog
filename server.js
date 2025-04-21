@@ -15,7 +15,7 @@ if (!MONGO_URI) {
     process.exit(1);
 }
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 // Initialize Express app
 const app = express();
@@ -58,7 +58,8 @@ app.use("/api/posts", require("./routes/Posts"));
 app.use("/api/comments", require("./routes/comments"));
 app.use("/api/analytics", require("./routes/analytics"));
 app.use("/api/upload", require("./routes/uploads"));
-app.use("/uploads", express.static("uploads")); // Serve uploaded files
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+ // Serve uploaded files
 app.use("/api/videos", require("./routes/videos"));
 app.use("/api/reviews", require("./routes/reviews"));
 app.use("/api/tutorials", require("./routes/tutorials"));

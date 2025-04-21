@@ -16,6 +16,15 @@ const formMappings = {
      "edit-video-form": "videos"
 };
 
+function getEditFormIdFromType(type) {
+    const match = Object.entries(formMappings).find(
+        ([formId, formType]) =>
+            formId.startsWith("edit-") && formType === type
+    );
+    return match ? match[0] : null;
+}
+
+
 // ✅ Attach form submission event listeners
 document.addEventListener("DOMContentLoaded", () => {
     console.log("✅ adminApi.js Loaded");
@@ -29,52 +38,108 @@ document.addEventListener("DOMContentLoaded", () => {
 
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
+        
+            // Special handling for galleries
+            if (type === "galleries") {
+                const fileInput = form.querySelector('input[type="file"]');
+                const titleInput = form.querySelector('#gallery-title');
+                if (!fileInput?.files.length || !titleInput.value.trim()) {
+                    alert("⚠ Title and image file are required for galleries.");
+                    return;
+                }
+        
+                const formData = new FormData();
+                formData.append("image", fileInput.files[0]);
+                formData.append("title", titleInput.value);
+
+                // ✅ Debug: Log form data before sending
+for (let [key, value] of formData.entries()) {
+    console.log(`${key}:`, value);
+}
+        
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/galleries`, {
+                        method: "POST",
+                        body: formData,
+                    });
+        
+                    if (!response.ok) throw new Error(await response.text());
+        
+                    alert("✅ Gallery image added successfully!");
+                    form.reset();
+                    fetchContent("galleries", "galleries-container");
+                } catch (error) {
+                    console.error("❌ Gallery upload failed:", error);
+                    alert("❌ Failed to upload image: " + error.message);
+                }
+                return;
+            }
+        
+            // Special handling for videos
+            if (type === "videos") {
+                const fileInput = form.querySelector('input[type="file"]');
+                const titleInput = form.querySelector('#video-title');
+                if (!fileInput?.files.length || !titleInput.value.trim()) {
+                    alert("⚠ Title and video file are required.");
+                    return;
+                }
+        
+                const formData = new FormData();
+                formData.append("video", fileInput.files[0]);
+                formData.append("title", titleInput.value);
+        
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/videos`, {
+                        method: "POST",
+                        body: formData,
+                    });
+        
+                    if (!response.ok) throw new Error(await response.text());
+        
+                    alert("✅ Video uploaded successfully!");
+                    form.reset();
+                    fetchContent("videos", "videos-container");
+                } catch (error) {
+                    console.error("❌ Video upload failed:", error);
+                    alert("❌ Failed to upload video: " + error.message);
+                }
+                return;
+            }
+        
+            // Generic handling for posts, reviews, tutorials
             const formData = new FormData(form);
             const postData = Object.fromEntries(formData.entries());
-
-            // ✅ Debugging: Check submitted data in Console
-            console.log(`📤 Submitting ${type}:`, postData);
-
-            // ✅ Trim values to avoid empty spaces being mistaken as input
+        
             for (const key in postData) {
                 if (typeof postData[key] === "string") {
                     postData[key] = postData[key].trim();
                 }
             }
-
-            // ✅ Check required fields
+        
+            // Validate fields (updated)
             if (
                 !postData.title ||
-                !postData.author ||
-                !postData.content ||
+                (type !== "galleries" && type !== "videos" && (!postData.author || !postData.content)) ||
                 (type === "reviews" && (!postData.summary || postData.rating === undefined)) ||
                 (type === "tutorials" && !postData.category)
             ) {
                 alert(`⚠ All fields are required for ${type}!`);
                 return;
             }
-
-            // ✅ Handle file uploads for galleries & videos
-            if (type === "galleries" || type === "videos") {
-                const fileInput = form.querySelector('input[type="file"]');
-                if (!fileInput?.files.length) {
-                    alert(`⚠ Please select a file for ${type}.`);
-                    return;
-                }
-
-                const uploadFunction = type === "galleries" ? uploadImage : uploadVideo;
-                const fileUrl = await uploadFunction(fileInput.files[0]);
-                if (!fileUrl) throw new Error(`❌ Failed to upload ${type} file.`);
-
-                postData[type === "galleries" ? "imageUrl" : "videoUrl"] = fileUrl;
+        
+            try {
+                await addContent(type, postData);
+                form.reset();
+                alert(`✅ ${type} added successfully!`);
+            } catch (error) {
+                console.error(`❌ Error adding ${type}:`, error);
+                alert(`❌ Error adding ${type}: ${error.message}`);
             }
-
-            await addContent(type, postData);
-            form.reset();
-            alert(`✅ ${type} added successfully!`);
         });
     });
 });
+
+
 
 // ✅ Generic function to send data to the server
 async function addContent(type, postData) {
@@ -124,43 +189,55 @@ function renderContent(data, containerId, type) {
 
     data.forEach((item) => {
         const element = document.createElement("div");
-        element.classList.add(type);
+        element.classList.add("content-item", type); // Add general & specific class
 
         let contentHtml = `
             <h3>${item.title}</h3>
-            <p><strong>Author:</strong> ${item.author}</p>
-            <p><strong>Category:</strong> ${item.category || "N/A"}</p>
-            <p><strong>Created At:</strong> ${new Date(item.createdAt).toLocaleString()}</p>
-            <p><strong>Summary:</strong> ${item.summary || ""}</p>
-            <p>${item.content}</p>
         `;
 
-        if (type === "reviews") {
+        // Optional fields depending on type
+        if (item.author) contentHtml += `<p><strong>Author:</strong> ${item.author}</p>`;
+        if (item.category) contentHtml += `<p><strong>Category:</strong> ${item.category}</p>`;
+        if (item.createdAt) contentHtml += `<p><strong>Created At:</strong> ${new Date(item.createdAt).toLocaleString()}</p>`;
+        if (item.summary) contentHtml += `<p><strong>Summary:</strong> ${item.summary}</p>`;
+        if (item.content) contentHtml += `<p>${item.content}</p>`;
+
+        // Rating for reviews
+        if (type === "reviews" && item.rating !== undefined) {
             contentHtml += `<p><strong>Rating:</strong> ${item.rating}/10</p>`;
         }
 
-        if (item.imageUrl) {
-            contentHtml += `<img src="${item.imageUrl}" alt="${item.title}" width="200">`;
+        // Gallery image
+        if (type === "galleries" && item.imageUrl) {
+            contentHtml += `
+                <img src="${item.imageUrl}" alt="${item.title}" width="200">
+            `;
         }
+        console.log("📷 Rendering image:", item.imageUrl);
 
+
+        // Video
         if (item.videoUrl) {
-            contentHtml += `<video width="320" height="240" controls>
-                <source src="${item.videoUrl}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>`;
+            contentHtml += `
+                <video width="320" height="240" controls style="margin-top: 10px;">
+                    <source src="${item.videoUrl}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>`;
         }
 
+        // Approval and Publishing
         if (item.approved !== undefined) {
-            contentHtml += `<p><strong>Approved:</strong> ${item.approved ? "Yes" : "No"}</p>`;
+            contentHtml += `<p><strong>Approved:</strong> ${item.approved ? "✅" : "❌"}</p>`;
             if (!item.approved) {
                 contentHtml += `<button class="approve-${type}" data-id="${item._id}">Approve</button>`;
             }
         }
 
-        if (item.approved) {
+        if (item.approved && item.published !== undefined) {
             contentHtml += `<button class="publish-${type}" data-id="${item._id}">Publish</button>`;
         }
 
+        // Edit/Delete
         contentHtml += `
             <button class="edit-${type}" data-id="${item._id}">Edit</button>
             <button class="delete-${type}" data-id="${item._id}">Delete</button>
@@ -170,8 +247,10 @@ function renderContent(data, containerId, type) {
         container.appendChild(element);
     });
 
+    // ✅ Attach dynamic event listeners
     attachEventListeners(type);
 }
+
 
 // ✅ Attach event listeners dynamically
 function attachEventListeners(type) {
@@ -195,7 +274,7 @@ async function uploadImage(imageFile) {
     formData.append("image", imageFile);
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/upload/image`, {
+        const response = await fetch(`${API_BASE_URL}/api/upload`, {
             method: "POST",
             body: formData,
         });
@@ -233,53 +312,54 @@ async function uploadVideo(videoFile) {
 // ✅ Generic edit and delete functions
 async function handleEdit(type, id) {
     try {
-        const response = await fetch(`http://localhost:3000/api/${type}/${id}`);
+        const response = await fetch(`${API_BASE_URL}/api/${type}/${id}`);
         if (!response.ok) throw new Error(`Failed to fetch ${type} details`);
 
         const itemData = await response.json();
         console.log(`📝 Editing ${type}:`, itemData);
 
-        // ✅ Ensure correct form ID mapping
-        const formId = `edit-${type}-form`;
-        const form = document.getElementById(formId);
-        
-        if (!form) {
-            console.warn(`⚠ Edit form for ${type} not found.`);
+        const formId = getEditFormIdFromType(type);
+        if (!formId) {
+            console.warn(`⚠ No edit form mapping found for type: ${type}`);
             return;
         }
-
-        // ✅ Ensure the form fields match the correct names
-        form.querySelector("[name='title']").value = itemData.title || "";
-        form.querySelector("[name='author']").value = itemData.author || "";
-        form.querySelector("[name='summary']").value = itemData.summary || "";
-        form.querySelector("[name='content']").value = itemData.content || "";
-        if (form.querySelector("[name='category']")) {
-            form.querySelector("[name='category']").value = itemData.category || "";
+        
+        const oldForm = document.getElementById(formId);
+        if (!oldForm) {
+            console.warn(`⚠ Edit form for ${type} not found. Looking for: #${formId}`);
+            return;
         }
-        if (form.querySelector("[name='rating']")) {
-            form.querySelector("[name='rating']").value = itemData.rating || "";
+        
+
+        // ✅ Clone the form and populate it
+        const formClone = oldForm.cloneNode(true);
+        populateEditForm(formClone, itemData);
+        formClone.style.display = "block";
+
+        // ✅ Adjust submit button text
+        const submitButton = formClone.querySelector("button[type='submit']");
+        if (submitButton) {
+            submitButton.textContent = `Update ${type.charAt(0).toUpperCase() + type.slice(1)}`;
         }
 
-        // ✅ Make sure the form is visible
-        form.style.display = "block";
+        // ✅ Prepare sidebar
+        const sidebar = document.getElementById("edit-sidebar");
+        const wrapper = document.getElementById("edit-form-wrapper");
+        wrapper.innerHTML = ""; // Clear previous form
+        wrapper.appendChild(formClone);
+        sidebar.style.display = "block";
 
-        // ✅ Update submit button
-        const submitButton = form.querySelector("button[type='submit']");
-        submitButton.textContent = `Update ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+        // ✅ Debug
+        console.log("✅ Form added to sidebar:", formClone);
+        console.log("➡️ Sidebar is now visible:", sidebar.style.display);
 
-        // ✅ Remove previous event listener and add a new one
-        form.replaceWith(form.cloneNode(true));
-        const updatedForm = document.getElementById(formId);
-
-        updatedForm.addEventListener("submit", async (e) => {
+        // ✅ Handle form submission
+        formClone.addEventListener("submit", async (e) => {
             e.preventDefault();
-            const formData = new FormData(updatedForm);
+            const formData = new FormData(formClone);
             const updatedData = Object.fromEntries(formData.entries());
 
-            console.log(`📤 Updating ${type}:`, updatedData);
-
-            // ✅ Send updated data to the server
-            const updateResponse = await fetch(`http://localhost:3000/api/${type}/${id}`, {
+            const updateResponse = await fetch(`${API_BASE_URL}/api/${type}/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updatedData),
@@ -291,8 +371,7 @@ async function handleEdit(type, id) {
             }
 
             alert(`✅ ${type} updated successfully!`);
-            updatedForm.reset();
-            updatedForm.style.display = "none";
+            sidebar.style.display = "none";
             fetchContent(type, `${type}-container`);
         });
 
@@ -301,6 +380,7 @@ async function handleEdit(type, id) {
         alert(`Error editing ${type}: ${error.message}`);
     }
 }
+
 
 
 
@@ -355,6 +435,15 @@ async function handlePublish(type, id) {
         alert(`Error publishing ${type}: ${error.message}`);
     }
 }
+
+function populateEditForm(form, data) {
+    const fields = ["title", "author", "summary", "content", "category", "rating"];
+    fields.forEach((field) => {
+        const input = form.querySelector(`[name='${field}']`);
+        if (input) input.value = data[field] ?? "";
+    });
+}
+
 // ✅ Fetch content on page load
 document.addEventListener("DOMContentLoaded", () => {
     Object.values(formMappings).forEach((type) => fetchContent(type, `${type}-container`));

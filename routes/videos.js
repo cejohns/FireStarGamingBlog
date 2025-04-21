@@ -46,4 +46,52 @@ router.post("/", upload.single("video"), (req, res) => {
     res.json({ videoUrl: `/uploads/videos/${req.file.filename}` });
 });
 
+// 🛠 PUT /api/galleries/:id - Edit gallery item
+router.put("/:id", upload.single("image"), async (req, res) => {
+    try {
+        const gallery = await Gallery.findById(req.params.id);
+        if (!gallery) {
+            return res.status(404).json({ error: "Gallery item not found" });
+        }
+
+        // If new image uploaded, replace the old one
+        if (req.file) {
+            const oldFilePath = path.join(uploadDir, path.basename(gallery.imageUrl));
+            if (fs.existsSync(oldFilePath)) {
+                fs.unlinkSync(oldFilePath);
+            }
+            gallery.imageUrl = `/uploads/${req.file.filename}`;
+        }
+
+        // Update title if provided
+        if (req.body.title) {
+            gallery.title = req.body.title;
+        }
+
+        const updated = await gallery.save();
+        res.json({ message: "Gallery updated", gallery: updated });
+    } catch (err) {
+        console.error("❌ Error editing gallery:", err);
+        res.status(500).json({ error: "Failed to edit gallery" });
+    }
+});
+
+// 🗑️ DELETE /api/videos/:filename - Delete video file
+router.delete("/:filename", async (req, res) => {
+    try {
+        const filePath = path.join(uploadDir, req.params.filename);
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: "Video not found" });
+        }
+
+        fs.unlinkSync(filePath);
+
+        res.json({ message: "Video deleted successfully" });
+    } catch (err) {
+        console.error("❌ Error deleting video:", err);
+        res.status(500).json({ error: "Failed to delete video" });
+    }
+});
+
 module.exports = router;
