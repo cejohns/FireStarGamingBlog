@@ -14,6 +14,7 @@ const validatePost = [
     body('category').isString().withMessage('Category must be a string'),
     (req, res, next) => {
         const errors = validationResult(req);
+        console.log("📋 Validation results:", errors.array());
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
@@ -67,35 +68,40 @@ router.post('/', validatePost, async (req, res) => {
 
 // Edit a post
 router.put('/:id', validatePost, async (req, res) => {
+    const { id } = req.params;
+
     try {
-        const { id } = req.params;
-        const { title, author, summary, content, category } = req.body;
-        
-        const errors = validatePost(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ error: errors.array()[0].msg });
-        }
-
-        const updatedPost = await Post.findByIdAndUpdate(
-            id,
-            { title, author, summary, content, category },
-            { new: true }
-        );
-
-        if (!updatedPost) {
+        const post = await Post.findById(id); // ✅ You must define `post`
+        if (!post) {
             return res.status(404).json({ error: "Post not found" });
         }
+
+        post.title = req.body.title;
+        post.author = req.body.author;
+        post.summary = req.body.summary;
+        post.content = req.body.content;
+        post.category = req.body.category;
+
+        const updatedPost = await post.save();
 
         res.json({
             success: true,
             message: "Post updated successfully",
-            post: updatedPost
+            post: updatedPost,
         });
+
     } catch (err) {
-        console.error('Error updating post:', err);
-        res.status(500).json({ error: "Failed to update post" });
+        console.error("❌ Error updating post:", err.message);
+        res.status(500).json({
+            error: "Failed to update post",
+            message: err.message,
+            stack: err.stack,
+            name: err.name
+        });
     }
 });
+
+
 
 // Delete a post
 router.delete('/:id', async (req, res) => {
@@ -185,6 +191,19 @@ router.get("/", async (req, res) => {
         res.json(posts);
     } catch (err) {
         res.status(500).json({ error: "Failed to fetch posts" });
+    }
+});
+
+router.get("/view/:id", async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post || !post.approved) {
+            return res.status(404).send("Post not found or not approved");
+        }
+
+        res.sendFile(path.join(__dirname, "../public/post.html")); // Make sure this exists
+    } catch (err) {
+        res.status(500).send("Failed to load post");
     }
 });
 

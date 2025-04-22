@@ -94,4 +94,18 @@ router.delete("/:filename", async (req, res) => {
     }
 });
 
+router.get("/view/:id", async (req, res) => {
+    try {
+        const video = await videos.findById(req.params.id); // ✅ use 'tutorial'
+        if (!video || !video.approved) {
+            return res.status(404).send("Tutorial not found or not approved");
+        }
+
+        res.sendFile(path.join(__dirname, "../public/tutorial.html"));
+    } catch (err) {
+        console.error("❌ Error loading tutorial:", err.message);
+        res.status(500).send("Failed to load tutorial");
+    }
+});
+
 module.exports = router;

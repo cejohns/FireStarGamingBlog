@@ -237,6 +237,11 @@ function renderContent(data, containerId, type) {
             contentHtml += `<button class="publish-${type}" data-id="${item._id}">Publish</button>`;
         }
 
+        if (item.approved) {
+            contentHtml += `<a href="/${type}/view/${item._id}" target="_blank">View</a>`;
+        }
+        
+
         // Edit/Delete
         contentHtml += `
             <button class="edit-${type}" data-id="${item._id}">Edit</button>
@@ -356,9 +361,11 @@ async function handleEdit(type, id) {
         // ✅ Handle form submission
         formClone.addEventListener("submit", async (e) => {
             e.preventDefault();
+            
+
             const formData = new FormData(formClone);
             const updatedData = Object.fromEntries(formData.entries());
-
+            console.log("📤 Sending updatedData:", updatedData);
             const updateResponse = await fetch(`${API_BASE_URL}/api/${type}/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },

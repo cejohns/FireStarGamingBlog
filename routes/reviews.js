@@ -132,5 +132,23 @@ router.put("/publish/:id", async (req, res) => {
     }
 });
 
+const path = require("path");
+
+// Serve public review page for approved reviews
+router.get("/view/:id", async (req, res) => {
+    try {
+        const review = await Review.findById(req.params.id);
+        if (!review || !review.approved) {
+            return res.status(404).send("Review not found or not approved");
+        }
+
+        // Serve the review.html file
+        res.sendFile(path.join(__dirname, "../public/review.html"));
+    } catch (err) {
+        console.error("Error loading review page:", err.message);
+        res.status(500).send("Failed to load review page");
+    }
+});
+
 
 module.exports = router;
