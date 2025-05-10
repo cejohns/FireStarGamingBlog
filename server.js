@@ -21,7 +21,7 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 // Ensure uploads directory exists
-const uploadDir = path.join(__dirname, "uploads");
+const uploadDir = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -54,21 +54,83 @@ mongoose
 // Routes
 app.use("/api/subscription", require("./routes/subscription"));
 app.use("/api/users", require("./routes/users"));
-app.use("/api/posts", require("./routes/Posts"));
+app.use("/api/posts", require("./routes/posts"));
 app.use("/api/comments", require("./routes/comments"));
 app.use("/api/analytics", require("./routes/analytics"));
 app.use("/api/upload", require("./routes/uploads"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
  // Serve uploaded files
+ // 1️⃣ Serve everything in /public as static
+app.use(express.static(path.join(__dirname, "public")));
 app.use("/api/videos", require("./routes/videos"));
 app.use("/api/reviews", require("./routes/reviews"));
 app.use("/api/tutorials", require("./routes/tutorials"));
 app.use("/api/galleries", require("./routes/gallery"));
 
+app.use("/posts", require("./routes/posts"));
+app.use("/reviews", require("./routes/reviews"));
+app.use("/tutorials", require("./routes/tutorials"));
+app.use("/galleries", require("./routes/gallery")); // ✅ for /galleries/view/:id
+app.use("/videos", require("./routes/videos"));
+// View route
+app.get("/galleries/view/:id", async (req, res) => {
+    const Gallery = require("./models/Gallery");
+    const gallery = await Gallery.findById(req.params.id);
+  
+    if (!gallery || !gallery.approved) {
+      return res.status(404).send("Gallery not found or not approved");
+    }
+  
+    res.sendFile(path.join(__dirname, "public/gallery.html"));
+  });
+
+  app.get('/tutorials/view/:id', (req, res) => {
+    const filePath = path.join(__dirname, 'public', 'tutorials.html');
+    console.log('→ serving:', filePath);
+    res.sendFile(filePath, err => {
+      if (err) {
+        console.error('sendFile error:', err);
+        res.status(500).json({ error: 'Internal Server Error', details: err.message });
+      }
+    });
+  });
+
+  // Serve an approved post
+app.get("/posts/view/:id", async (req, res) => {
+  const Post = require("./models/Post");
+  const post = await Post.findById(req.params.id);
+  if (!post || !post.approved) {
+    return res.status(404).send("Post not found or not approved");
+  }
+  res.sendFile(path.join(__dirname, "public/post.html"));
+});
+
+// Serve an approved review
+app.get("/reviews/view/:id", async (req, res) => {
+  const Review = require("./models/Review");
+  const review = await Review.findById(req.params.id);
+  if (!review || !review.approved) {
+    return res.status(404).send("Review not found or not approved");
+  }
+  res.sendFile(path.join(__dirname, "public/review.html"));
+});
+
+// Serve an approved video
+app.get("/videos/view/:id", async (req, res) => {
+  const Video = require("./models/Video");
+  const video = await Video.findById(req.params.id);
+  if (!video || !video.approved) {
+    return res.status(404).send("Video not found or not approved");
+  }
+  res.sendFile(path.join(__dirname, "public/video.html"));
+});
+
+  
+  /*app.listen(3000, () => console.log("✅ Server on http://localhost:3000"));
 // Default route
 app.get("/", (req, res) => {
     res.json({ message: "Firestar Gaming API is running" });
-});
+});*/
 
 // Error handling middleware
 app.use((err, req, res, next) => {

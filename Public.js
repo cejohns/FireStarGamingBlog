@@ -1,5 +1,19 @@
 const API_BASE_URL = "http://localhost:3000";
 
+function detailLink(type, id) {
+    const map = {
+      posts:     'post.html',
+      reviews:   'review.html',
+      tutorials: 'tutorial.html',
+      galleries: 'gallery.html',
+      videos:    'video.html'
+    };
+    const page = map[type];
+    return page
+      ? `${page}?id=${id}`
+      : `#`;  // fallback if you ever pass an unknown type
+  }
+
 async function fetchContent(type, containerId) {
     const container = document.getElementById(containerId);
     if (!container) {
@@ -66,23 +80,27 @@ async function fetchPublishedReviews() {
 // Fetch and render published tutorials
 async function fetchPublishedContent(type, containerId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/${type}`);
-        const data = await response.json();
-
-        const container = document.getElementById(containerId);
-        container.innerHTML = data.map(item => `
-            <div>
-              <h3><a href="post.html?id=${item._id}">${item.title}</a></h3>
-                <p><strong>Author:</strong> ${item.author}</p>
-                <p><strong>Category:</strong> ${item.category}</p>
-                <p><strong>Published On:</strong> ${new Date(item.publishedAt).toLocaleDateString()}</p>
-                <p>${item.summary}</p>
-            </div>
-        `).join("");
-    } catch (error) {
-        console.error(`Error fetching ${type}:`, error);
+      const response = await fetch(`${API_BASE_URL}/api/${type}`);
+      const data     = await response.json();
+      const container = document.getElementById(containerId);
+  
+      container.innerHTML = data.map(item => `
+        <div>
+          <h3>
+            <a href="${detailLink(type, item._id)}">
+              ${item.title}
+            </a>
+          </h3>
+          <p><strong>Author:</strong> ${item.author}</p>
+          <p><strong>Category:</strong> ${item.category}</p>
+          <p><strong>Published On:</strong> ${new Date(item.publishedAt).toLocaleDateString()}</p>
+          <p>${item.summary}</p>
+        </div>
+      `).join('');
+    } catch (err) {
+      console.error(`Error fetching ${type}:`, err);
     }
-}
+  }
 
 
 

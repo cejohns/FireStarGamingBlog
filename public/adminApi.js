@@ -126,7 +126,7 @@ for (let [key, value] of formData.entries()) {
                 alert(`⚠ All fields are required for ${type}!`);
                 return;
             }
-        
+        F
             try {
                 await addContent(type, postData);
                 form.reset();
@@ -238,8 +238,26 @@ function renderContent(data, containerId, type) {
         }
 
         if (item.approved) {
-            contentHtml += `<a href="/${type}/view/${item._id}" target="_blank">View</a>`;
-        }
+            switch (type) {
+              case 'posts':
+                contentHtml += `<a href="/posts/view/${item._id}" target="_blank">View Post</a>`;
+                break;
+              case 'reviews':
+                contentHtml += `<a href="/reviews/view/${item._id}" target="_blank">View Review</a>`;
+                break;
+              case 'tutorials':
+                contentHtml += `<a href="/tutorials/view/${item._id}" target="_blank">View Tutorial</a>`;
+                break;
+              case 'galleries':
+                contentHtml += `<a href="/galleries/view/${item._id}" target="_blank">View Gallery</a>`;
+                break;
+              case 'videos':
+                contentHtml += `<a href="/videos/view/${item._id}" target="_blank">View Video</a>`;
+                break;
+            }
+          }
+          
+          
         
 
         // Edit/Delete

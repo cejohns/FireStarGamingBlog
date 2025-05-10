@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gallery List</title>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const container = document.getElementById("gallery-list");
+
+      try {
+        const res = await fetch("/api/galleries");
+        const galleries = await res.json();
+
+        galleries
+          .filter(g => g.approved)
+          .forEach(gallery => {
+            const link = document.createElement("a");
+            link.href = `/galleries/view/${gallery._id}`;
+            link.textContent = gallery.title;
+            link.style.display = "block";
+            container.appendChild(link);
+          });
+      } catch (err) {
+        container.innerHTML = "<p>Failed to load gallery list.</p>";
+        console.error("Gallery list error:", err);
+      }
+    });
+  </script>
+</head>
+<body>
+  <h1>Approved Gallery List</h1>
+  <div id="gallery-list"></div>
+</body>
+</html>

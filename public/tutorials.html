@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Development & Tech Tutorials - Firestar Gaming</title>
     <link rel="stylesheet" href="reviews.css">
-    <script type="module" src="tutorials.js"></script>
+    <script type="module" defer src="/js/tutorials.js"></script>
 </head>
 <body>
     <header>
@@ -48,7 +48,7 @@
                         <img src="${tutorial.image || 'images/default-image.jpg'}" alt="${tutorial.title}">
                         <h2>${tutorial.title}</h2>
                         <p>${tutorial.summary}</p>
-                        <a href="BlogPost.html?id=${tutorial._id}">Read More</a>
+                        <a href="tutorials.html?id=${tutorial._id}">Read More</a>
                     </div>
                 `).join('') : '<p>No tutorials available.</p>';
             } catch (error) {
