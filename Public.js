@@ -1,18 +1,18 @@
 const API_BASE_URL = "http://localhost:3000";
 
 function detailLink(type, id) {
-    const map = {
-      posts:     'post.html',
-      reviews:   'review.html',
-      tutorials: 'tutorial.html',
-      galleries: 'gallery.html',
-      videos:    'video.html'
-    };
-    const page = map[type];
-    return page
-      ? `${page}?id=${id}`
-      : `#`;  // fallback if you ever pass an unknown type
-  }
+  const map = {
+    posts:     'post.html',
+    reviews:   'review.html',
+    tutorials: 'tutorials.html',
+    galleries: 'gallery.html',
+    videos:    'video.html'
+  };
+  const page = map[type];
+  return page
+    ? `${API_BASE_URL}/${page}?id=${id}`   // ← absolute to port 3000
+    : `#`;
+}
 
 async function fetchContent(type, containerId) {
     const container = document.getElementById(containerId);
@@ -30,7 +30,11 @@ async function fetchContent(type, containerId) {
         container.innerHTML = data.length
             ? data.map(item => `
                 <div class="${type}-preview">
-                    <h3>${item.title}</h3>
+                         <h3>
+           <a href="${detailLink(type, item._id)}">
+             ${item.title}
+           </a>
+       </h3
                     <p><strong>Author:</strong> ${item.author}</p>
                     <p><strong>Category:</strong> ${item.category}</p>
                     <p><strong>Published On:</strong> ${new Date(item.publishedAt).toLocaleDateString()}</p>
@@ -77,8 +81,43 @@ async function fetchPublishedReviews() {
     }
 }
 
+async function fetchPublishedTutorials() {
+  try {
+    // 1. Grab all tutorials from your backend
+    const response  = await fetch(`${API_BASE_URL}/api/tutorials`);
+    const tutorials = await response.json();
+
+    // 2. Target the container in your HTML
+    const container = document.getElementById("tutorials-container");
+    if (!container) {
+      console.warn("No element with id='tutorials-container'");
+      return;
+    }
+
+    // 3. Filter & render
+    container.innerHTML = tutorials
+      // tweak this if your field is `approved` instead of `published`
+      .filter(t => t.published)
+      .map(t => `
+        <div>
+          <h3>
+              ${t.title}
+            </a>
+          </h3>
+          <p><strong>Author:</strong> ${t.author}</p>
+          <p><strong>Category:</strong> ${t.category}</p>
+          <p><strong>Published On:</strong> ${new Date(t.publishedAt).toLocaleDateString()}</p>
+          <div>${t.content}</div>
+        </div>
+      `).join("");
+
+  } catch (error) {
+    console.error("Error fetching published tutorials:", error);
+  }
+}
+
 // Fetch and render published tutorials
-async function fetchPublishedContent(type, containerId) {
+/*async function fetchPublishedContent(type, containerId) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/${type}`);
       const data     = await response.json();
@@ -100,7 +139,7 @@ async function fetchPublishedContent(type, containerId) {
     } catch (err) {
       console.error(`Error fetching ${type}:`, err);
     }
-  }
+  }*/
 
 
 
@@ -147,7 +186,11 @@ async function fetchPublishedGalleries() {
         container.innerHTML = approvedGalleries.length
             ? approvedGalleries.map(image => `
                 <div class="gallery-preview">
-                    <h3>${image.title}</h3>
+                      <h3>
+    <a href="${detailLink('galleries', item._id)}">
+      ${item.title}
+    </a>
+  </h3>
                     <img src="${API_BASE_URL}${image.imageUrl}" alt="${image.title}" width="200">
                 </div>
             `).join("")

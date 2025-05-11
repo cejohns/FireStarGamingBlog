@@ -1,15 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Blog Post</title>
-    <script src="js/post.js"></script>
-
+  <meta charset="UTF-8">
+  <title>Blog Post</title>
+  <!-- Make sure this path is correct -->
+  <script src="/js/post.js" defer></script>
 </head>
 <body>
-    <h1 id="post-title">Loading...</h1>
-    <p id="post-content"></p>
-    
+  <article>
+    <h1 id="post-title">Loading…</h1>
+    <p>
+      <strong>By:</strong> <span id="post-author"></span><br>
+      <strong>Date:</strong> <time id="post-date"></time><br>
+      <strong>Category:</strong> <span id="post-category"></span>
+    </p>
+    <div id="post-content"></div>
+  </article>
 </body>
 </html>
+
 

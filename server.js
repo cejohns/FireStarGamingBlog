@@ -30,14 +30,18 @@ app.use(express.json());
 //app.use(cors({ origin: "http://127.0.0.1:5500", credentials: true }));
 
 // Enable CORS
-app.use(
-    cors({
-        origin: "http://127.0.0.1:5500", // Replace with your frontend origin
-        credentials: true,
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-    })
-);
+// in server.js, replace your existing cors() middleware with:
+
+app.use(cors({
+  origin: [
+    "http://localhost:3000",    // when you load via Express
+    "http://127.0.0.1:5500"     // when you load via Live Server
+  ],
+  credentials: true,
+  methods: ["GET","POST","PUT","DELETE"],
+  allowedHeaders: ["Content-Type","Authorization"],
+}));
+
 
 // Request logging middleware
 app.use((req, res, next) => {
