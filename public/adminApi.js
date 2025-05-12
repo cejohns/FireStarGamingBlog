@@ -16,6 +16,21 @@ const formMappings = {
      "edit-video-form": "videos"
 };
 
+function detailLink(type, id) {
+  const map = {
+    posts:     'post.html',
+    reviews:   'review.html',
+    tutorials: 'tutorials.html',
+    galleries: 'gallery.html',
+    videos:    'video.html',
+  };
+  const page = map[type];
+  return page
+    ? `${API_BASE_URL}/${page}?id=${id}`
+    : '#';
+}
+
+
 function getEditFormIdFromType(type) {
     const match = Object.entries(formMappings).find(
         ([formId, formType]) =>
@@ -182,97 +197,85 @@ async function fetchContent(type, containerId) {
     }
 }
 
-// ✅ Render content dynamically
+// ✅ Render content dynamically/**
+ //Renders content items into the given container, with dynamic "View" links
+
 function renderContent(data, containerId, type) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = data.length ? "" : `<p>No ${type} available.</p>`;
+  const container = document.getElementById(containerId);
+  container.innerHTML = data.length ? '' : `<p>No ${type} available.</p>`;
 
-    data.forEach((item) => {
-        const element = document.createElement("div");
-        element.classList.add("content-item", type); // Add general & specific class
+  data.forEach((item) => {
+    const element = document.createElement('div');
+    element.classList.add('content-item', type);
 
-        let contentHtml = `
-            <h3>${item.title}</h3>
-        `;
+    let contentHtml = `
+      <h3>${item.title}</h3>
+    `;
 
-        // Optional fields depending on type
-        if (item.author) contentHtml += `<p><strong>Author:</strong> ${item.author}</p>`;
-        if (item.category) contentHtml += `<p><strong>Category:</strong> ${item.category}</p>`;
-        if (item.createdAt) contentHtml += `<p><strong>Created At:</strong> ${new Date(item.createdAt).toLocaleString()}</p>`;
-        if (item.summary) contentHtml += `<p><strong>Summary:</strong> ${item.summary}</p>`;
-        if (item.content) contentHtml += `<p>${item.content}</p>`;
+    if (item.author)    contentHtml += `<p><strong>Author:</strong> ${item.author}</p>`;
+    if (item.category)  contentHtml += `<p><strong>Category:</strong> ${item.category}</p>`;
+    if (item.createdAt) contentHtml += `<p><strong>Created At:</strong> ${new Date(item.createdAt).toLocaleString()}</p>`;
+    if (item.summary)   contentHtml += `<p><strong>Summary:</strong> ${item.summary}</p>`;
+    if (item.content)   contentHtml += `<p>${item.content}</p>`;
 
-        // Rating for reviews
-        if (type === "reviews" && item.rating !== undefined) {
-            contentHtml += `<p><strong>Rating:</strong> ${item.rating}/10</p>`;
-        }
+    if (type === 'reviews' && item.rating !== undefined) {
+      contentHtml += `<p><strong>Rating:</strong> ${item.rating}/10</p>`;
+    }
 
-        // Gallery image
-        if (type === "galleries" && item.imageUrl) {
-            contentHtml += `
-                <img src="${item.imageUrl}" alt="${item.title}" width="200">
-            `;
-        }
-        console.log("📷 Rendering image:", item.imageUrl);
+    if (type === 'galleries' && item.imageUrl) {
+      contentHtml += `
+        <img src="${item.imageUrl}" alt="${item.title}" width="200">
+      `;
+    }
 
+    if (item.videoUrl) {
+      contentHtml += `
+        <video width="320" height="240" controls style="margin-top: 10px;">
+          <source src="${item.videoUrl}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      `;
+    }
 
-        // Video
-        if (item.videoUrl) {
-            contentHtml += `
-                <video width="320" height="240" controls style="margin-top: 10px;">
-                    <source src="${item.videoUrl}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>`;
-        }
+    if (item.approved !== undefined) {
+      contentHtml += `<p><strong>Approved:</strong> ${item.approved ? '✅' : '❌'}</p>`;
+      if (!item.approved) {
+        contentHtml += `<button class="approve-${type}" data-id="${item._id}">Approve</button>`;
+      }
+    }
 
-        // Approval and Publishing
-        if (item.approved !== undefined) {
-            contentHtml += `<p><strong>Approved:</strong> ${item.approved ? "✅" : "❌"}</p>`;
-            if (!item.approved) {
-                contentHtml += `<button class="approve-${type}" data-id="${item._id}">Approve</button>`;
-            }
-        }
+    if (item.approved && item.published !== undefined) {
+      contentHtml += `<button class="publish-${type}" data-id="${item._id}">Publish</button>`;
+    }
 
-        if (item.approved && item.published !== undefined) {
-            contentHtml += `<button class="publish-${type}" data-id="${item._id}">Publish</button>`;
-        }
+    // Add a single "View" link pointing to the static HTML page with ?id=
+    if (item.approved) {
+      contentHtml += `<a href="${detailLink(type, item._id)}" target="_blank">` +
+                     ({
+                       posts:     'View Post',
+                       reviews:   'View Review',
+                       tutorials: 'View Tutorial',
+                       galleries: 'View Gallery',
+                       videos:    'View Video'
+                     }[type] || 'View') +
+                     `</a>`;
+    }
 
-        if (item.approved) {
-            switch (type) {
-              case 'posts':
-                contentHtml += `<a href="/posts/view/${item._id}" target="_blank">View Post</a>`;
-                break;
-              case 'reviews':
-                contentHtml += `<a href="/reviews/view/${item._id}" target="_blank">View Review</a>`;
-                break;
-              case 'tutorials':
-                contentHtml += `<a href="/tutorials/view/${item._id}" target="_blank">View Tutorial</a>`;
-                break;
-              case 'galleries':
-                contentHtml += `<a href="/galleries/view/${item._id}" target="_blank">View Gallery</a>`;
-                break;
-              case 'videos':
-                contentHtml += `<a href="/videos/view/${item._id}" target="_blank">View Video</a>`;
-                break;
-            }
-          }
-          
-          
-        
+    // Edit/Delete buttons
+    contentHtml += `
+      <button class="edit-${type}" data-id="${item._id}">Edit</button>
+      <button class="delete-${type}" data-id="${item._id}">Delete</button>
+    `;
 
-        // Edit/Delete
-        contentHtml += `
-            <button class="edit-${type}" data-id="${item._id}">Edit</button>
-            <button class="delete-${type}" data-id="${item._id}">Delete</button>
-        `;
+    element.innerHTML = contentHtml;
+    container.appendChild(element);
+  });
 
-        element.innerHTML = contentHtml;
-        container.appendChild(element);
-    });
-
-    // ✅ Attach dynamic event listeners
-    attachEventListeners(type);
+  attachEventListeners(type);
 }
+
+// Export or globally expose as needed
+window.renderContent = renderContent;
 
 
 // ✅ Attach event listeners dynamically

@@ -1,62 +1,61 @@
+<!-- public/tutorials.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Development & Tech Tutorials - Firestar Gaming</title>
-    <link rel="stylesheet" href="reviews.css">
-    <script type="module" defer src="/js/tutorials.js"></script>
+  <meta charset="utf-8">
+  <title>Tutorials</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <img src="images/NewFSELogo.jpg" alt="Firestar Gaming Logo">
-            <span>Firestar Gaming</span>
-        </div>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="categories.html">Categories</a>
-            <a href="reviews.html">Reviews</a>
-            <a href="tutorials.html" class="active">Tutorials</a>
-            <a href="contact.html">Contact</a>
-        </nav>
-    </header>
+  <h1>Tutorials</h1>
+  <!-- This is where either the single tutorial or the list will go -->
+  <div id="tutorial-container"></div>
 
-    <main>
-        <section class="tutorials">
-            <h1>Latest Tutorials</h1>
-            <div id="tutorials-container">
-                <!-- Tutorials will be dynamically inserted here -->
+  <script>
+    const container = document.getElementById('tutorial-container');
+    const params = new URLSearchParams(window.location.search);
+    const id     = params.get('id');
+
+    if (id) {
+      // DETAIL MODE
+      fetch(`/api/tutorials/${id}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Not found');
+          return res.json();
+        })
+        .then(tut => {
+          container.innerHTML = `
+            <article class="tutorial-detail">
+              <h2>${tut.title}</h2>
+              <p><em>Category: ${tut.category}</em></p>
+              <div>${tut.content}</div>
+            </article>
+          `;
+        })
+        .catch(() => {
+          container.innerHTML = '<p>Sorry, tutorial not found.</p>';
+        });
+    } else {
+      // LIST MODE
+      fetch('/api/tutorials')
+        .then(res => res.json())
+        .then(list => {
+          if (!list.length) {
+            container.innerHTML = '<p>No tutorials available.</p>';
+            return;
+          }
+          container.innerHTML = list.map(tut => `
+            <div class="tutorial-summary">
+              <h3>
+                <a href="tutorials.html?id=${tut._id}">
+                  ${tut.title}
+                </a>
+              </h3>
+              <p>${tut.summary || ''}</p>
             </div>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2025 Firestar Gaming. All Rights Reserved.</p>
-    </footer>
-
-    <script type="module">
-        async function fetchTutorials() {
-            try {
-                const response = await fetch('http://localhost:3000/api/posts?category=Tutorials'); // Adjust API endpoint
-                if (!response.ok) throw new Error("Failed to fetch tutorials");
-                const tutorials = await response.json();
-
-                const container = document.getElementById('tutorials-container');
-                container.innerHTML = tutorials.length ? tutorials.map(tutorial => `
-                    <div class="tutorial">
-                        <img src="${tutorial.image || 'images/default-image.jpg'}" alt="${tutorial.title}">
-                        <h2>${tutorial.title}</h2>
-                        <p>${tutorial.summary}</p>
-                        <a href="tutorials.html?id=${tutorial._id}">Read More</a>
-                    </div>
-                `).join('') : '<p>No tutorials available.</p>';
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', fetchTutorials);
-    </script>
+          `).join('');
+        });
+    }
+  </script>
 </body>
 </html>

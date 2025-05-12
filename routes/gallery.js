@@ -14,21 +14,15 @@ if (!fs.existsSync(uploadDir)) {
 
 // Configure Multer for file uploads
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename:    (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
 });
-
 const upload = multer({ storage });
 
-// ✅ GGET /api/galleries - Retrieve all videos
-// ✅ GET /api/galleries - Retrieve all gallery images (approved + unapproved)
+// GET /api/galleries - Retrieve all gallery items
 router.get("/", async (req, res) => {
     try {
-        const galleries = await Gallery.find().sort({ createdAt: -1 }); // optional: newest first
+        const galleries = await Gallery.find().sort({ createdAt: -1 });
         res.status(200).json(galleries);
     } catch (err) {
         console.error("❌ Error fetching galleries:", err);
@@ -36,35 +30,32 @@ router.get("/", async (req, res) => {
     }
 });
 
-// ✅ GET /api/galleries - Retrieve only approved gallery images
-/*router.get("/", async (req, res) => {
-    try {
-        const galleries = await Gallery.find({ approved: true });
-        res.status(200).json(galleries);
-    } catch (err) {
-        console.error("Error fetching galleries:", err);
-        res.status(500).json({ error: "Failed to fetch galleries" });
+// GET /api/galleries/:id - Retrieve one gallery item by ID
+// 2️⃣ DETAIL ROUTE
+// GET /api/galleries/:id
+router.get("/:id", async (req, res) => {
+  try {
+    const gal = await Gallery.findById(req.params.id);
+    if (!gal) {
+      return res.status(404).json({ error: "Gallery not found" });
     }
-});*/
+    return res.status(200).json(gal);
+  } catch (err) {
+    console.error("❌ Error fetching gallery detail:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
-
-// ✅ POST /api/galleries - Upload image & save metadata
+// POST /api/galleries - Upload image & save metadata
 router.post("/", upload.single("image"), async (req, res) => {
     try {
         if (!req.file) {
             console.warn("⚠ No file uploaded.");
             return res.status(400).json({ error: "No file uploaded" });
         }
-
-        console.log("📥 File received:", req.file);
-        console.log("📥 Title received:", req.body.title);
-
         const imageUrl = `/uploads/${req.file.filename}`;
         const newGallery = new Gallery({ title: req.body.title, imageUrl });
-
         const savedGallery = await newGallery.save();
-        console.log("✅ Saved to MongoDB:", savedGallery);
-
         res.status(201).json(savedGallery);
     } catch (err) {
         console.error("❌ Error adding gallery item:", err);
@@ -72,62 +63,28 @@ router.post("/", upload.single("image"), async (req, res) => {
     }
 });
 
-
-// ✅ Approve an Image
+// PUT /api/galleries/approve/:id - Approve an image
 router.put("/approve/:id", async (req, res) => {
     try {
         const image = await Gallery.findByIdAndUpdate(req.params.id, { approved: true }, { new: true });
         res.json({ message: "Image approved", image });
     } catch (err) {
+        console.error("❌ Error approving gallery:", err);
         res.status(500).json({ error: "Failed to approve image" });
     }
 });
 
-// ✅ DELETE /api/galleries/:id - Delete image from DB and filesystem
-router.delete("/:id", async (req, res) => {
-    try {
-        const image = await Gallery.findById(req.params.id);
-        if (!image) {
-            return res.status(404).json({ error: "Image not found" });
-        }
-
-        // Delete file from uploads folder
-        const filePath = path.join(uploadDir, path.basename(image.imageUrl));
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-        }
-
-        // Delete from database
-        await Gallery.findByIdAndDelete(req.params.id);
-
-        res.json({ message: "Image deleted successfully" });
-    } catch (err) {
-        res.status(500).json({ error: "Failed to delete image" });
-    }
-});
-
-// 🛠 PUT /api/galleries/:id - Edit gallery item
+// PUT /api/galleries/:id - Edit gallery item
 router.put("/:id", upload.single("image"), async (req, res) => {
     try {
         const gallery = await Gallery.findById(req.params.id);
-        if (!gallery) {
-            return res.status(404).json({ error: "Gallery item not found" });
-        }
-
-        // If new image uploaded, replace the old one
+        if (!gallery) return res.status(404).json({ error: "Gallery item not found" });
         if (req.file) {
             const oldFilePath = path.join(uploadDir, path.basename(gallery.imageUrl));
-            if (fs.existsSync(oldFilePath)) {
-                fs.unlinkSync(oldFilePath);
-            }
+            if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
             gallery.imageUrl = `/uploads/${req.file.filename}`;
         }
-
-        // Update title if provided
-        if (req.body.title) {
-            gallery.title = req.body.title;
-        }
-
+        if (req.body.title) gallery.title = req.body.title;
         const updated = await gallery.save();
         res.json({ message: "Gallery updated", gallery: updated });
     } catch (err) {
@@ -136,19 +93,19 @@ router.put("/:id", upload.single("image"), async (req, res) => {
     }
 });
 
-/*router.get("/view/:id", async (req, res) => {
+// DELETE /api/galleries/:id - Delete image from DB and filesystem
+router.delete("/:id", async (req, res) => {
     try {
-        const gallery = await Gallery.findById(req.params.id); // ✅ use 'tutorial'
-        if (!gallery || !gallery.approved) {
-            return res.status(404).send("Tutorial not found or not approved");
-        }
-
-        res.sendFile(path.join(__dirname, "../public/gallery.html"));
+        const image = await Gallery.findById(req.params.id);
+        if (!image) return res.status(404).json({ error: "Image not found" });
+        const filePath = path.join(uploadDir, path.basename(image.imageUrl));
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        await Gallery.findByIdAndDelete(req.params.id);
+        res.json({ message: "Image deleted successfully" });
     } catch (err) {
-        console.error("❌ Error loading gallery:", err.message);
-        res.status(500).send("Failed to load gallery");
+        console.error("❌ Error deleting gallery:", err);
+        res.status(500).json({ error: "Failed to delete image" });
     }
-});*/
-
+});
 
 module.exports = router;
