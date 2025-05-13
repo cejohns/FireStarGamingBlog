@@ -252,6 +252,10 @@
                     <label for="video-title">Title:</label>
                     <input type="text" id="video-title" required>
 
+                     <label for="video-description">Description:</label>
+<input type="text" id="video-description" name="description" required>
+
+
                     <label for="video-file">Upload Video:</label>
                     <input type="file" id="video-file" accept="video/*" required>
 
@@ -265,6 +269,9 @@
         
             <label for="edit-video-title">Title:</label>
             <input type="text" id="edit-video-title" required />
+
+             <label for="edit-video-description">Description:</label>
+                     <input type="text" id="edit-video-description" required />
         
             <label for="edit-video-file">Replace Video (optional):</label>
             <input type="file" id="edit-video-file" accept="video/*" />
@@ -443,8 +450,9 @@ if (videoForm) {
             return;
         }
 
-        const title = titleInput.value.trim();
-        const videoFile = videoInput.files[0];
+       const title       = titleInput.value.trim();
+const description = document.getElementById("video-description").value.trim();
+const videoFile   = videoInput.files[0];
 
         if (!title || !videoFile) {
             alert("⚠ Title and video file are required!");
@@ -452,9 +460,9 @@ if (videoForm) {
         }
 
         const formData = new FormData();
-        formData.append("title", title);
-        formData.append("video", videoFile); // ✅ Must match Multer field name on server
-
+formData.append("title", title);
+formData.append("description", description);
+formData.append("video", videoFile);
         console.log("📤 Uploading video...");
         for (let [key, value] of formData.entries()) {
             console.log(`${key}:`, value);

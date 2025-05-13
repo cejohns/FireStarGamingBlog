@@ -90,36 +90,37 @@ for (let [key, value] of formData.entries()) {
                 return;
             }
         
-            // Special handling for videos
-            if (type === "videos") {
-                const fileInput = form.querySelector('input[type="file"]');
-                const titleInput = form.querySelector('#video-title');
-                if (!fileInput?.files.length || !titleInput.value.trim()) {
-                    alert("⚠ Title and video file are required.");
-                    return;
-                }
-        
-                const formData = new FormData();
-                formData.append("video", fileInput.files[0]);
-                formData.append("title", titleInput.value);
-        
-                try {
-                    const response = await fetch(`${API_BASE_URL}/api/videos`, {
-                        method: "POST",
-                        body: formData,
-                    });
-        
-                    if (!response.ok) throw new Error(await response.text());
-        
-                    alert("✅ Video uploaded successfully!");
-                    form.reset();
-                    fetchContent("videos", "videos-container");
-                } catch (error) {
-                    console.error("❌ Video upload failed:", error);
-                    alert("❌ Failed to upload video: " + error.message);
-                }
-                return;
-            }
+          // Special handling for videos
+if (type === "videos") {
+  const fileInput       = form.querySelector('input[type="file"]');
+  const titleInput      = form.querySelector('#video-title');
+  const descInput       = form.querySelector('#video-description');
+  if (!fileInput?.files.length || !titleInput.value.trim() || !descInput.value.trim()) {
+    alert("⚠ Title, description, and video file are all required.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("video",       fileInput.files[0]);
+  formData.append("title",       titleInput.value.trim());
+  formData.append("description", descInput.value.trim());
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/videos`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) throw new Error(await response.text());
+    alert("✅ Video uploaded successfully!");
+    form.reset();
+    fetchContent("videos", "videos-container");
+  } catch (error) {
+    console.error("❌ Video upload failed:", error);
+    alert("❌ Failed to upload video: " + error.message);
+  }
+  return;
+}
+
         
             // Generic handling for posts, reviews, tutorials
             const formData = new FormData(form);
@@ -200,43 +201,50 @@ async function fetchContent(type, containerId) {
 // ✅ Render content dynamically/**
  //Renders content items into the given container, with dynamic "View" links
 
+/**
+ * Render content items in admin panel with edit, delete, approve, publish, and preview
+ */
 function renderContent(data, containerId, type) {
   const container = document.getElementById(containerId);
   container.innerHTML = data.length ? '' : `<p>No ${type} available.</p>`;
 
-  data.forEach((item) => {
+  data.forEach(item => {
     const element = document.createElement('div');
     element.classList.add('content-item', type);
 
-    let contentHtml = `
-      <h3>${item.title}</h3>
-    `;
+    let contentHtml = `<h3>${item.title}</h3>`;
 
-    if (item.author)    contentHtml += `<p><strong>Author:</strong> ${item.author}</p>`;
+    // Common fields
     if (item.category)  contentHtml += `<p><strong>Category:</strong> ${item.category}</p>`;
     if (item.createdAt) contentHtml += `<p><strong>Created At:</strong> ${new Date(item.createdAt).toLocaleString()}</p>`;
-    if (item.summary)   contentHtml += `<p><strong>Summary:</strong> ${item.summary}</p>`;
-    if (item.content)   contentHtml += `<p>${item.content}</p>`;
 
-    if (type === 'reviews' && item.rating !== undefined) {
-      contentHtml += `<p><strong>Rating:</strong> ${item.rating}/10</p>`;
+    // Type-specific
+    if (type === 'posts') {
+      if (item.summary) contentHtml += `<p>${item.summary}</p>`;
     }
-
-    if (type === 'galleries' && item.imageUrl) {
-      contentHtml += `
-        <img src="${item.imageUrl}" alt="${item.title}" width="200">
-      `;
+    if (type === 'reviews') {
+      if (item.rating !== undefined) contentHtml += `<p><strong>Rating:</strong> ${item.rating}/10</p>`;
+      if (item.summary)        contentHtml += `<p>${item.summary}</p>`;
     }
-
-    if (item.videoUrl) {
-      contentHtml += `
-        <video width="320" height="240" controls style="margin-top: 10px;">
-          <source src="${item.videoUrl}" type="video/mp4">
+    if (type === 'tutorials') {
+      if (item.summary)        contentHtml += `<p>${item.summary}</p>`;
+      if (item.content)        contentHtml += `<p>${item.content}</p>`;
+    }
+    if (type === 'galleries') {
+      if (item.imageUrl)       contentHtml += `<img src="${item.imageUrl}" alt="${item.title}" width="200">`;
+    }
+    // Video preview and description
+    if (type === 'videos') {
+      if (item.description)    contentHtml += `<p><strong>Description:</strong> ${item.description}</p>`;
+      if (item.videoUrl)       contentHtml += `
+        <video width="320" height="240" controls style="display:block; margin:8px 0;">
+          <source src="${API_BASE_URL}${item.videoUrl}" type="video/mp4">
           Your browser does not support the video tag.
         </video>
       `;
     }
 
+    // Approval status and button
     if (item.approved !== undefined) {
       contentHtml += `<p><strong>Approved:</strong> ${item.approved ? '✅' : '❌'}</p>`;
       if (!item.approved) {
@@ -244,13 +252,14 @@ function renderContent(data, containerId, type) {
       }
     }
 
+    // Publish button (for content with published flag)
     if (item.approved && item.published !== undefined) {
       contentHtml += `<button class="publish-${type}" data-id="${item._id}">Publish</button>`;
     }
 
-    // Add a single "View" link pointing to the static HTML page with ?id=
+    // Preview link
     if (item.approved) {
-      contentHtml += `<a href="${detailLink(type, item._id)}" target="_blank">` +
+      contentHtml += `<a href="${detailLink(type, item._id)}" target="_blank" class="preview-link">` +
                      ({
                        posts:     'View Post',
                        reviews:   'View Review',
@@ -263,7 +272,7 @@ function renderContent(data, containerId, type) {
 
     // Edit/Delete buttons
     contentHtml += `
-      <button class="edit-${type}" data-id="${item._id}">Edit</button>
+      <button class="edit-${type}"   data-id="${item._id}">Edit</button>
       <button class="delete-${type}" data-id="${item._id}">Delete</button>
     `;
 
@@ -271,6 +280,7 @@ function renderContent(data, containerId, type) {
     container.appendChild(element);
   });
 
+  // Attach event listeners for edit, delete, approve, publish
   attachEventListeners(type);
 }
 

@@ -107,6 +107,16 @@
             fetchContent("posts", "posts-container");
             fetchContent("reviews", "reviews-container");
             fetchContent("videos", "videos-container");
+             // use the specialized video previewer instead
+   if (window.fetchPublishedVideos) {
+     fetchPublishedVideos();
+   } else {
+     console.warn("⚠ fetchPublishedVideos() not found — did you include Public.js?");
+  }
+  if (window.fetchPublishedGalleries) {
+  fetchPublishedGalleries();
+}
+
         });
 
         async function fetchPublishedReviews() {
