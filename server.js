@@ -20,6 +20,24 @@ const PORT = process.env.PORT || 3000;
 // Initialize Express app
 const app = express();
 
+// ── Content Security Policy ────────────────────────────────────
+// allow self, data-URIs, inline styles, and Google Fonts
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    [
+      "default-src 'self'",
+      "script-src  'self'",
+      "connect-src 'self'",
+      "img-src     'self' data:",
+      "font-src    'self' https://fonts.gstatic.com",
+      "style-src   'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "style-src-elem 'self' https://fonts.googleapis.com"
+    ].join("; ")
+  );
+  next();
+});
+
 // Ensure uploads directory exists
 const uploadDir = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadDir)) {

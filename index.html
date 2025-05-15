@@ -55,7 +55,7 @@
     <section id="review-content">
         <h2>Latest Reviews</h2>
         <div class="scroll-wrapper">
-            <div id="home-reviews-container" class="scroll-content"></div>
+            <div id="reviews-container" class="scroll-content"></div>
         </div>
     </section>
     
@@ -125,7 +125,7 @@
         if (!response.ok) throw new Error("Failed to fetch reviews");
 
         const reviews = await response.json();
-        const container = document.getElementById("home-reviews-container");
+        const container = document.getElementById("reviews-container");
 
         // Filter only published reviews
         const publishedReviews = reviews.filter(review => review.published);

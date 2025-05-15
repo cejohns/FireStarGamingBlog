@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Video Content</title>
   <link rel="stylesheet" href="/css/style.css" />
-  <script src="/js/video.js"></script>
+  <script defer src="/js/video.js"></script>
 </head>
 <body>
   <main class="video-detail">
@@ -17,6 +17,15 @@
         Your browser does not support the video tag.
       </video>
     </div>
+   <!-- analytics & interactions -->
+   <div class="video-analytics">
+     <p>Views: <span id="view-count">0</span></p>
+     <button id="like-btn">Like (<span id="like-count">0</span>)</button>
+     <button id="dislike-btn">Dislike (<span id="dislike-count">0</span>)</button>
+     <p>Comments: <span id="comment-count">0</span></p>
+   </div>
+   <!-- comments will be rendered here -->
+   <div id="comments-container"></div>
   </main>
 
  

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Blog Post</title>
-  <!-- Make sure this path is correct -->
-  <script src="/js/post.js" defer></script>
+  <!-- Your stylesheet if any -->
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <article>
@@ -16,7 +16,19 @@
     </p>
     <div id="post-content"></div>
   </article>
+
+  <!-- Analytics & interaction controls -->
+  <section class="post-analytics">
+    <p>Views: <span id="view-count">0</span></p>
+    <button id="like-btn">Like (<span id="like-count">0</span>)</button>
+    <button id="dislike-btn">Dislike (<span id="dislike-count">0</span>)</button>
+    <p>Comments: <span id="comment-count">0</span></p>
+  </section>
+
+   <!-- comments will be rendered here -->
+ <div id="comments-container"></div>
+
+  <!-- Detail-page script: fetches post data & wires up buttons -->
+  <script defer src="/js/post.js"></script>
 </body>
 </html>
-
-

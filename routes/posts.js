@@ -36,20 +36,45 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/posts/:id - Retrieve a specific post
-router.get('/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-        const post = await Post.findById(id);
-        if (!post) {
-            return res.status(404).json({ error: 'Post not found' });
-        }
-        res.status(200).json(post);
-    } catch (err) {
-        console.error('Error fetching post:', err.message);
-        res.status(500).json({ error: 'Failed to fetch post' });
-    }
+router.get("/:id", async (req, res) => {
+  try {
+    const post = await Post.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 }},
+      { new: true }
+    );
+    if (!post) return res.status(404).json({ error: "Post not found" });
+    res.json(post);
+  } catch (err) {
+    console.error("Detail route error:", err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
+
+// POST /api/posts/:id/like
+router.post('/:id/like', async (req, res) => {
+  const post = await Post.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { likes: 1 } },
+    { new: true }
+  );
+  return post
+    ? res.json(post)
+    : res.status(404).json({ error: 'Not found' });
+});
+
+// POST /api/posts/:id/dislike
+router.post('/:id/dislike', async (req, res) => {
+  const post = await Post.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { dislikes: 1 } },
+    { new: true }
+  );
+  return post
+    ? res.json(post)
+    : res.status(404).json({ error: 'Not found' });
+});
 
 
 // Add a new post

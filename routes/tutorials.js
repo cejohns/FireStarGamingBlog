@@ -45,7 +45,11 @@ router.get("/published", async (req, res) => {
 // ✅ Get tutorial by ID
 router.get("/:id", async (req, res) => {
     try {
-        const tutorial = await Tutorial.findById(req.params.id);
+         const tutorial = await Tutorial.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
         if (!tutorial) return res.status(404).json({ error: "Tutorial not found" });
         res.json(tutorial);
     } catch (err) {
@@ -53,6 +57,31 @@ router.get("/:id", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch tutorial" });
     }
 });
+
+// POST /api/Tuorials/:id/like
+router.post('/:id/like', async (req, res) => {
+  const tutorial = await Tutorial.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { likes: 1 } },
+    { new: true }
+  );
+  return post
+    ? res.json(post)
+    : res.status(404).json({ error: 'Not found' });
+});
+
+// POST /api/tutorials/:id/dislike
+router.post('/:id/dislike', async (req, res) => {
+  const tutorial = await Tutorial.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { dislikes: 1 } },
+    { new: true }
+  );
+  return tutorial
+    ? res.json(post)
+    : res.status(404).json({ error: 'Not found' });
+});
+
 
 // ✅ Create new tutorial
 router.post("/", validateTutorial, async (req, res) => {

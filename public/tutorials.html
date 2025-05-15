@@ -11,51 +11,16 @@
   <!-- This is where either the single tutorial or the list will go -->
   <div id="tutorial-container"></div>
 
-  <script>
-    const container = document.getElementById('tutorial-container');
-    const params = new URLSearchParams(window.location.search);
-    const id     = params.get('id');
+ <!-- analytics & interactions (detail mode only) -->
+ <div id="tutorial-analytics" style="display:none;">
+   <p>Views: <span id="view-count">0</span></p>
+   <button id="like-btn">Like (<span id="like-count">0</span>)</button>
+   <button id="dislike-btn">Dislike (<span id="dislike-count">0</span>)</button>
+   <p>Comments: <span id="comment-count">0</span></p>
+ </div>
+ <!-- comments will go here -->
+ <div id="comments-container"></div>
+<script defer src="/js/tutorial.js"></script>
 
-    if (id) {
-      // DETAIL MODE
-      fetch(`/api/tutorials/${id}`)
-        .then(res => {
-          if (!res.ok) throw new Error('Not found');
-          return res.json();
-        })
-        .then(tut => {
-          container.innerHTML = `
-            <article class="tutorial-detail">
-              <h2>${tut.title}</h2>
-              <p><em>Category: ${tut.category}</em></p>
-              <div>${tut.content}</div>
-            </article>
-          `;
-        })
-        .catch(() => {
-          container.innerHTML = '<p>Sorry, tutorial not found.</p>';
-        });
-    } else {
-      // LIST MODE
-      fetch('/api/tutorials')
-        .then(res => res.json())
-        .then(list => {
-          if (!list.length) {
-            container.innerHTML = '<p>No tutorials available.</p>';
-            return;
-          }
-          container.innerHTML = list.map(tut => `
-            <div class="tutorial-summary">
-              <h3>
-                <a href="tutorials.html?id=${tut._id}">
-                  ${tut.title}
-                </a>
-              </h3>
-              <p>${tut.summary || ''}</p>
-            </div>
-          `).join('');
-        });
-    }
-  </script>
 </body>
 </html>

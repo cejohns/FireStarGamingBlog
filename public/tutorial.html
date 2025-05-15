@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tutorial Detail</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <main class="tutorial-detail">
+    <h1 id="tutorial-title">Loading…</h1>
+    <p>
+      <strong>Category:</strong>
+      <span id="tutorial-category"></span>
+      &nbsp;|&nbsp;
+      <strong>Date:</strong>
+      <time id="tutorial-date"></time>
+    </p>
+    <article id="tutorial-content"></article>
+  </main>
+
+  <!-- Analytics & interactions -->
+  <section class="tutorial-analytics">
+    <p>Views: <span id="view-count">0</span></p>
+    <button id="like-btn">Like (<span id="like-count">0</span>)</button>
+    <button id="dislike-btn">Dislike (<span id="dislike-count">0</span>)</button>
+    <p>Comments: <span id="comment-count">0</span></p>
+  </section>
+
+  <!-- Comments -->
+  <div id="comments-container"></div>
+
+  <!-- Detail‐mode loader -->
+  <script defer src="/js/tutorial.js"></script>
+</body>
+</html>

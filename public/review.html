@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Review - Firestar Gaming</title>
-    <link rel="stylesheet" href="reviews.css">
+    <link rel="stylesheet" href="style.css">
     <script defer src="/js/reviews.js"></script>
 </head>
 <body>
@@ -31,13 +31,25 @@
             <p><strong>Published On:</strong> <span id="review-date"></span></p>
             <p><strong>Rating:</strong> <span id="review-rating"></span>/10</p>
             <p id="review-content"></p>
+                    <p id="review-content"></p>
+       <!-- analytics & interactions -->
+       <div class="review-analytics">
+         <p>Views: <span id="view-count">0</span></p>
+         <button id="like-btn">Like (<span id="like-count">0</span>)</button>
+         <button id="dislike-btn">Dislike (<span id="dislike-count">0</span>)</button>
+         <p>Comments: <span id="comment-count">0</span></p>
+      </div>
+
+       <!-- comments will be rendered here -->
+       <div id="comments-container"></div>
+
         </section>
     </main>
 
     <footer>
         <p>&copy; 2025 Firestar Gaming. All Rights Reserved.</p>
     </footer>
-    <script src="/js/review.js"></script>
+     <script defer src="/js/review.js"></script>
 </body>
 </html>
 

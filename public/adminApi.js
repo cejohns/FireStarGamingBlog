@@ -20,7 +20,7 @@ function detailLink(type, id) {
   const map = {
     posts:     'post.html',
     reviews:   'review.html',
-    tutorials: 'tutorials.html',
+    tutorials: 'tutorial.html',
     galleries: 'gallery.html',
     videos:    'video.html',
   };

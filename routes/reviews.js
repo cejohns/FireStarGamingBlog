@@ -35,7 +35,11 @@ router.get("/", async (req, res) => {
 // GET a single review by ID
 router.get("/:id", async (req, res) => {
     try {
-        const review = await Review.findById(req.params.id);
+          const review = await Review.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
         if (!review) return res.status(404).json({ error: "Review not found" });
 
         res.status(200).json(review);
@@ -43,6 +47,30 @@ router.get("/:id", async (req, res) => {
         console.error("Error fetching review:", err);
         res.status(500).json({ error: "Failed to fetch review" });
     }
+});
+
+// POST /api/reviews/:id/like
+router.post('/:id/like', async (req, res) => {
+  const review = await Review.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { likes: 1 } },
+    { new: true }
+  );
+  return review
+    ? res.json(post)
+    : res.status(404).json({ error: 'Not found' });
+});
+
+// POST /api/reviews/:id/dislike
+router.post('/:id/dislike', async (req, res) => {
+  const review = await Review.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { dislikes: 1 } },
+    { new: true }
+  );
+  return review
+    ? res.json(post)
+    : res.status(404).json({ error: 'Not found' });
 });
 
 

@@ -35,7 +35,11 @@ router.get("/", async (req, res) => {
 // GET /api/galleries/:id
 router.get("/:id", async (req, res) => {
   try {
-    const gal = await Gallery.findById(req.params.id);
+      const gallery = await Gallery.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
     if (!gal) {
       return res.status(404).json({ error: "Gallery not found" });
     }
@@ -45,6 +49,31 @@ router.get("/:id", async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+// POST /api/posts/:id/like
+router.post('/:id/like', async (req, res) => {
+  const gallery = await Gallery.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { likes: 1 } },
+    { new: true }
+  );
+  return gallery
+    ? res.json(post)
+    : res.status(404).json({ error: 'Not found' });
+});
+
+// POST /api/posts/:id/dislike
+router.post('/:id/dislike', async (req, res) => {
+  const gallery = await Gallery.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { dislikes: 1 } },
+    { new: true }
+  );
+  return gallery
+    ? res.json(post)
+    : res.status(404).json({ error: 'Not found' });
+});
+
 
 // POST /api/galleries - Upload image & save metadata
 router.post("/", upload.single("image"), async (req, res) => {

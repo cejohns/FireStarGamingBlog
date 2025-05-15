@@ -33,7 +33,11 @@ router.get('/', async (req, res) => {
 // GET /api/videos/:id - Retrieve one video by ID
 router.get('/:id', async (req, res) => {
   try {
-    const video = await Video.findById(req.params.id);
+      const video = await Video.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
     if (!video) {
       return res.status(404).json({ error: 'Video not found' });
     }
@@ -43,6 +47,31 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+// POST /api/posts/:id/like
+router.post('/:id/like', async (req, res) => {
+  const video = await Video.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { likes: 1 } },
+    { new: true }
+  );
+  return video
+    ? res.json(post)
+    : res.status(404).json({ error: 'Not found' });
+});
+
+// POST /api/posts/:id/dislike
+router.post('/:id/dislike', async (req, res) => {
+  const video = await Video.findByIdAndUpdate(
+    req.params.id,
+    { $inc: { dislikes: 1 } },
+    { new: true }
+  );
+  return video
+    ? res.json(post)
+    : res.status(404).json({ error: 'Not found' });
+});
+
 
 // POST /api/videos - Upload video & save metadata
 router.post('/', upload.single('video'), async (req, res) => {

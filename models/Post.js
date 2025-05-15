@@ -14,6 +14,12 @@ const PostSchema = new mongoose.Schema({
     comments: [CommentSchema],
     approved: { type: Boolean, default: false }, // ✅ Added approval status
     createdAt: { type: Date, default: Date.now },
+
+    // ── analytics fields ─────────────────────────
+  views:       { type: Number, default: 0 },
+  likes:       { type: Number, default: 0 },
+  dislikes:    { type: Number, default: 0 },
+  commentCount:{ type: Number, default: 0 },
 });
 
 module.exports = mongoose.model('Post', PostSchema);
