@@ -145,3 +145,15 @@ footer {
 .close-btn:hover {
     color: #e00;
 }
+
+.slideshow-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.slideshow-container img {
+  max-width: 600px;
+  width: 100%;
+  height: auto;
+  display: block;
+}
