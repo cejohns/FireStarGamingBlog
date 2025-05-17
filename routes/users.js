@@ -4,11 +4,13 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 const User = require('../models/User');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+
 // Register a new user
 router.post('/register', async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
     try {
-        const user = new User({ username, email, password });
+        const user = new User({ username, email, password, role });
         await user.save();
         res.status(201).json({ message: 'User registered successfully!' });
     } catch (err) {

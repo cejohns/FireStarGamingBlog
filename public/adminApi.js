@@ -1,5 +1,11 @@
 const API_BASE_URL = "http://localhost:3000";
 
+// ⚠️ Pull your JWT from localStorage
+const token = localStorage.getItem('token');
+const authHeaders = {
+  'Authorization': 'Bearer ' + token
+};
+
 // ✅ Forms mapped to their respective API endpoints
 const formMappings = {
     "add-post-form": "posts",
@@ -75,6 +81,7 @@ for (let [key, value] of formData.entries()) {
                 try {
                     const response = await fetch(`${API_BASE_URL}/api/galleries`, {
                         method: "POST",
+                          headers: authHeaders,
                         body: formData,
                     });
         
@@ -108,6 +115,7 @@ if (type === "videos") {
   try {
     const response = await fetch(`${API_BASE_URL}/api/videos`, {
       method: "POST",
+        headers: authHeaders,
       body: formData,
     });
     if (!response.ok) throw new Error(await response.text());
@@ -162,7 +170,7 @@ async function addContent(type, postData) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/${type}`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json",  ...authHeaders },
             body: JSON.stringify(postData),
         });
 
@@ -188,7 +196,7 @@ async function fetchContent(type, containerId) {
             return;
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/${type}`);
+         const response = await fetch(`${API_BASE_URL}/api/${type}`, { headers: authHeaders });
         if (!response.ok) throw new Error(`Failed to fetch ${type}`);
 
         const data = await response.json();
@@ -312,6 +320,7 @@ async function uploadImage(imageFile) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/upload`, {
             method: "POST",
+              headers: authHeaders,
             body: formData,
         });
 
@@ -332,6 +341,7 @@ async function uploadVideo(videoFile) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/videos`, {
             method: "POST",
+              headers: authHeaders,
             body: formData,
         });
 
@@ -399,7 +409,7 @@ async function handleEdit(type, id) {
             console.log("📤 Sending updatedData:", updatedData);
             const updateResponse = await fetch(`${API_BASE_URL}/api/${type}/${id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", ...authHeaders },
                 body: JSON.stringify(updatedData),
             });
 
@@ -427,7 +437,7 @@ async function handleDelete(type, id) {
     if (!confirm(`Are you sure you want to delete this ${type}?`)) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/${type}/${id}`, { method: "DELETE" });
+        const response = await fetch(`${API_BASE_URL}/api/${type}/${id}`, { method: "DELETE" ,  headers: authHeaders,});
 
         if (!response.ok) throw new Error("Failed to delete " + type);
 
@@ -442,6 +452,7 @@ async function handleApprove(type, id) {
     try {
         const response = await fetch(`http://localhost:3000/api/${type}/approve/${id}`, {
             method: "PUT",
+              headers: authHeaders,
         });
 
         if (!response.ok) {
@@ -460,6 +471,7 @@ async function handlePublish(type, id) {
     try {
         const response = await fetch(`http://localhost:3000/api/${type}/publish/${id}`, {
             method: "PUT",
+              headers: authHeaders,
         });
 
         if (!response.ok) {

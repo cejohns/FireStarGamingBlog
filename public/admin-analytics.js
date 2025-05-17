@@ -1,8 +1,18 @@
 const API_BASE_URL = "http://localhost:3000";
 
+const token = localStorage.getItem('token');
+const headers = {
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer ' + token
+};
+
 async function fetchAnalytics() {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/analytics`);
+    // ✅ include headers, and remove the stray comma
+    const res = await fetch(
+      `${API_BASE_URL}/api/analytics`,
+      { headers }
+    );
     const {
       totalPosts,
       totalComments,
@@ -34,7 +44,11 @@ async function fetchAnalytics() {
 
 async function fetchCommentsModeration() {
   try {
-     const res = await fetch(`${API_BASE_URL}/api/comments`);
+    // ✅ include headers on the GET
+    const res = await fetch(
+      `${API_BASE_URL}/api/comments`,
+      { headers }
+    );
     const comments = await res.json();
     const pending = comments.filter(c => !c.approved);
     const container = document.getElementById('comments-container');
@@ -56,7 +70,11 @@ async function fetchCommentsModeration() {
     container.querySelectorAll('.approve-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const id = btn.closest('.comment-item').dataset.id;
-        await fetch(`${API_BASE_URL}/api/comments/approve/${id}`, { method: 'PUT' });
+        // ✅ include headers on the PUT
+        await fetch(
+          `${API_BASE_URL}/api/comments/approve/${id}`,
+          { method: 'PUT', headers }
+        );
         btn.closest('.comment-item').remove();
       });
     });
@@ -64,7 +82,11 @@ async function fetchCommentsModeration() {
     container.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const id = btn.closest('.comment-item').dataset.id;
-        await fetch(`${API_BASE_URL}/api/comments/${id}`, { method: 'DELETE' });
+        // ✅ include headers on the DELETE
+        await fetch(
+          `${API_BASE_URL}/api/comments/${id}`,
+          { method: 'DELETE', headers }
+        );
         btn.closest('.comment-item').remove();
       });
     });

@@ -5,6 +5,7 @@ const https = require("https");
 const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
+const { verifyToken, verifyAdmin } = require('./routes/middleware/auth');
 
 // Load environment variables
 dotenv.config();
@@ -89,13 +90,15 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
  // 1️⃣ Serve everything in /public as static
 app.use(express.static(path.join(__dirname, "public")));
 
+// 🔐 Protect the admin panel
+app.get('/admin-panel.html',
+  verifyToken,
+  verifyAdmin,
+  (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin-panel.html'));
+  }
+);
 
-//app.use("/posts", require("./routes/posts"));
-//app.use("/reviews", require("./routes/reviews"));
-//app.use("/tutorials", require("./routes/tutorials"));
-//app.use("/galleries", require("./routes/gallery")); // ✅ for /galleries/view/:id
-//app.use("/videos", require("./routes/videos"));
-// View route
   // Serve an approved post
 app.get("/posts/view/:id", async (req, res) => {
   const Post = require("./models/Post");
