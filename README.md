@@ -17,6 +17,24 @@ A full-stack blogging platform designed for gaming content creators. Features se
 ✅ Responsive UI built in React
 
 ---
+Screenshots 
+---
+
+## Screenshots
+
+### 🖼️ Login Page
+![Login](./images/Screenshots/1.png)
+
+### 🖼️ Blog List
+![Blog List](./images/Screenshots/2.png)
+
+### 🖼️ Post Creation Form
+![Post Creation](./images/Screenshots/3.png)
+
+### 🖼️ Admin / Dashboard View
+![Dashboard](./images/Screenshots/4.png)
+
+
 
 ## Tech Stack
 
