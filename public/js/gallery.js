@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const dislikeCountEl= document.getElementById('dislike-count');
   const commentCountEl= document.getElementById('comment-count');
   const commentsContainer = document.getElementById('comments-container');
+    const caption = document.getElementById('caption');
+  const dotsCtr = document.getElementById('nav-dots');
   const prevBtn       = document.getElementById('prev-slide');
   const nextBtn       = document.getElementById('next-slide');
 
@@ -29,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // 2. Find index matching startId, default to 0
       idx = galleries.findIndex(g => g._id === startId);
       if (idx < 0) idx = 0;
+      buildDots();
       renderSlide();
       attachNav();
       attachInteractions();
@@ -37,6 +40,18 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Error loading galleries:', err);
       document.body.innerHTML = '<h1>Error loading gallery slideshow</h1>';
     });
+
+      function buildDots() {
+    dotsCtr.innerHTML = galleries
+      .map((_, i) => `<span data-index="${i}"></span>`)
+      .join('');
+    dotsCtr.querySelectorAll('span').forEach(dot => {
+      dot.addEventListener('click', () => {
+        idx = +dot.dataset.index;
+        showSlide();
+      });
+    });
+  }
 
   function renderSlide() {
     const g = galleries[idx];

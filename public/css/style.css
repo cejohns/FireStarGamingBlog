@@ -146,14 +146,94 @@ footer {
     color: #e00;
 }
 
+/* Slideshow container improvements */
 .slideshow-container {
+  position: relative;
   display: flex;
   align-items: center;
+  overflow: hidden;
   gap: 1rem;
 }
+
 .slideshow-container img {
-  max-width: 600px;
   width: 100%;
+  max-width: 600px;
   height: auto;
   display: block;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.slideshow-container img.active {
+  opacity: 1;
+}
+
+/* Caption overlay */
+.caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+/* Prev/Next button styling */
+.slideshow-container button {
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.slideshow-container button:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Navigation dots */
+.nav-dots {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.nav-dots span {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin: 0 4px;
+  background: #ccc;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.nav-dots span.active {
+  background: #333;
+}
+
+/* Responsive: stack vertically on small screens */
+@media (max-width: 600px) {
+  .slideshow-container {
+    flex-direction: column;
+  }
+}
+
+/* Comment box styling */
+.comment-item {
+  border-bottom: 1px solid #ddd;
+  padding: 0.5rem 0;
+}
+
+.comment-item p {
+  margin: 0.25rem 0;
+}
+
+.comment-item small {
+  color: #666;
 }

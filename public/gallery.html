@@ -12,11 +12,16 @@
   <h1 id="gallery-title">Loading…</h1>
   <p><strong>Date:</strong> <span id="gallery-date"></span></p>
 
-  <div class="slideshow-container">
+ <div class="slideshow-container">
     <button id="prev-slide">❮ Prev</button>
-    <img id="gallery-image" src="" alt="Gallery Image" />
+    <div class="slide-wrapper" style="position: relative; flex: 1;">
+      <img id="gallery-image" src="" alt="Gallery Image" class="active" />
+      <div class="caption" id="caption"></div>
+    </div>
     <button id="next-slide">Next ❯</button>
   </div>
+
+  <div class="nav-dots" id="nav-dots"></div>
 
   <div class="gallery-analytics">
     <p>Views: <span id="view-count">0</span></p>
