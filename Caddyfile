@@ -1,0 +1,13 @@
+# Replace with your real domain
+your-frontend-domain.com {
+  respond / 200
+}
+
+api.your-domain.com {
+  encode zstd gzip
+  reverse_proxy api:5000
+  @health path /healthz
+  handle @health {
+    respond 204
+  }
+}

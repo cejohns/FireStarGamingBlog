@@ -1,0 +1,40 @@
+# Dependencies & builds
+node_modules/
+dist/
+build/
+.cache/
+.next/
+out/
+coverage/
+.vite/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.csr
+*.pfx
+*.p12
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Uploads & generated media
+uploads/
+public/uploads/
+
+# Misc
+*.tgz
+*.zip

@@ -1,0 +1,91 @@
+openapi: 3.1.0
+info:
+  title: FireStar Gaming Blog API
+  version: 0.1.0
+servers:
+  - url: http://localhost:5000
+paths:
+  /api/auth/register:
+    post:
+      summary: Register user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                displayName: { type: string }
+                role: { type: string, enum: [admin, qa, author, user] }
+      responses:
+        '201': { description: Created }
+  /api/auth/login:
+    post:
+      summary: Login and receive JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200':
+          description: OK
+          headers:
+            Authorization:
+              description: Bearer token (also returned in body)
+              schema: { type: string }
+  /api/posts:
+    get:
+      summary: List published posts
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Create post (author/admin)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Created }
+  /api/posts/{id}:
+    patch:
+      summary: Update post (author/admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    delete:
+      summary: Delete post (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: No Content }
+  /api/posts/{slug}:
+    get:
+      summary: Get a post by slug
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
