@@ -1,9 +1,7 @@
 import rateLimit from 'express-rate-limit';
-import config from '../config/env.js';
-
 export default rateLimit({
-  windowMs: config.rateLimitWindowMs,
-  max: config.rateLimitMax,
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false
 });

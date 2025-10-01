@@ -1,7 +1,11 @@
 import { Router } from 'express';
-import * as ctrl from '../controllers/auth.controller.js';
-
 const r = Router();
-r.post('/register', ctrl.register);
-r.post('/login', ctrl.login);
+
+/**
+ * NOTE: This is a stub so the API can start.
+ * Replace with real register/login controller later.
+ */
+r.post('/register', (_req, res) => res.status(201).json({ ok: true }));
+r.post('/login', (_req, res) => res.json({ token: 'stub', role: 'admin' }));
+
 export default r;

@@ -14,13 +14,5 @@ export default {
   rateLimitMax: Number(env('RATE_LIMIT_MAX', 100)),
   uploadDir: env('UPLOAD_DIR', 'uploads'),
   maxUploadMb: Number(env('MAX_UPLOAD_MB', 10)),
-  allowedImageTypes: env('ALLOWED_IMAGE_TYPES', 'image/jpeg,image/png,image/webp')
-    .split(','),
-  mail: {
-    host: env('MAIL_HOST', ''),
-    port: Number(env('MAIL_PORT', 587)),
-    user: env('MAIL_USER', ''),
-    pass: env('MAIL_PASS', ''),
-    from: env('MAIL_FROM', '"FireStar Gaming" <noreply@example.com>')
-  }
+  allowedImageTypes: env('ALLOWED_IMAGE_TYPES', 'image/jpeg,image/png,image/webp').split(',')
 };

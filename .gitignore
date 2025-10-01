@@ -38,3 +38,9 @@ public/uploads/
 # Misc
 *.tgz
 *.zip
+
+# Secrets
+infra/certs/
+*.key
+*.crt
+*.pem

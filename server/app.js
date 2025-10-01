@@ -12,7 +12,7 @@ import postsRoutes from './routes/posts.routes.js';
 import reviewsRoutes from './routes/reviews.routes.js';
 import tutorialsRoutes from './routes/tutorials.routes.js';
 
-const app = express(); // <-- declare ONCE
+const app = express();
 
 app.use(helmet());
 app.use(cors({ origin: config.corsOrigin, credentials: true }));
@@ -25,13 +25,8 @@ app.use('/api/posts', postsRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/tutorials', tutorialsRoutes);
 
-app.get('/healthz', (_req, res) => res.status(204).end());
-app.use('/api', (_req, res) => {
-  res.status(404).json({ message: 'API route not found' });
-});
-
-
 // Health / root route
+app.get('/healthz', (_req, res) => res.status(204).end());
 app.get('/', (_req, res) => {
   res.json({
     name: 'FireStar Gaming Blog API',
@@ -42,4 +37,4 @@ app.get('/', (_req, res) => {
 
 app.use(errorHandler);
 
-export default app; // <-- export ONCE
+export default app;

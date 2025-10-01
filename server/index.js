@@ -6,7 +6,7 @@ const start = async () => {
   try {
     await connectDB();
     app.listen(config.port, () => {
-      console.log(`ðŸš€ API listening on http://localhost:${config.port}`);
+      console.log(`íº€ API listening on http://localhost:${config.port}`);
     });
   } catch (err) {
     console.error('Failed to start server:', err);
