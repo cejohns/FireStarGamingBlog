@@ -1,38 +1,41 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 
 export default function App() {
-  const [items, setItems] = useState([])
-  const [error, setError] = useState('')
+  const [items, setItems] = useState([]);
+  const [q, setQ] = useState('');
 
-  useEffect(() => {
-    // Vite proxy sends /api to http://localhost:5000
-    fetch('/api/posts')
-      .then(r => (r.ok ? r.json() : Promise.reject(new Error('Failed to load posts'))))
-      .then(setItems)
-      .catch(e => setError(e.message))
-  }, [])
+  const load = async (query='') => {
+    const res = await fetch(`/api/articles${query ? `?q=${encodeURIComponent(query)}` : ''}`);
+    const data = await res.json();
+    setItems(data);
+  };
+
+  useEffect(()=>{ load(); }, []);
 
   return (
     <div className="min-h-screen p-6 max-w-4xl mx-auto">
       <h1 className="text-3xl font-extrabold mb-4">FireStar Gaming</h1>
-      {error && (
-        <div className="p-3 bg-red-100 text-red-800 rounded mb-4">{error}</div>
-      )}
+
+      <div className="mb-4 flex gap-2">
+        <input className="border rounded p-2 flex-1" placeholder="Search articles..." value={q} onChange={e=>setQ(e.target.value)} />
+        <button className="rounded bg-black text-white px-4" onClick={()=>load(q)}>Search</button>
+      </div>
+
       {items.length === 0 ? (
-        <div className="text-gray-500">No posts yet.</div>
+        <div className="text-gray-500">No articles yet.</div>
       ) : (
         <div className="grid gap-4">
-          {items.map((p) => (
-            <article key={p._id || p.slug} className="p-4 rounded-xl shadow bg-white">
-              <h2 className="text-xl font-bold">{p.title}</h2>
-              <p className="text-sm text-gray-600">{p.slug}</p>
-              <div className="prose prose-sm max-w-none mt-2">
-                {(p.body || '').slice(0, 160)}...
+          {items.map(a => (
+            <article key={a._id} className="p-4 rounded-xl shadow bg-white">
+              <a href={a.link} target="_blank" rel="noreferrer" className="text-xl font-bold underline">{a.title}</a>
+              <div className="text-xs text-gray-600 mt-1">
+                {a.publishedAt ? new Date(a.publishedAt).toLocaleString() : '' }
               </div>
+              <p className="mt-2 text-sm">{(a.summary || a.content || '').slice(0, 200)}...</p>
             </article>
           ))}
         </div>
       )}
     </div>
-  )
+  );
 }

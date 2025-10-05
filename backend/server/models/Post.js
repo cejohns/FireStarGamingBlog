@@ -1,13 +1,18 @@
+// backend/server/models/Post.js
 import mongoose from 'mongoose';
 
-const postSchema = new mongoose.Schema({
-  title: String,
-  slug: { type: String, unique: true, index: true },
-  body: String,
-  coverImageUrl: String,
-  authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  status: { type: String, enum: ['draft', 'published'], default: 'draft' },
-  tags: [String]
-}, { timestamps: true });
+const PostSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true, trim: true },
+    slug:  { type: String, required: true, unique: true, index: true, trim: true },
+    body:  { type: String, default: '' },
+    status:{ type: String, enum: ['draft','published'], default: 'draft', index: true },
+    tags:  [{ type: String, trim: true }],
+    authorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    publishedAt: { type: Date }
+  },
+  { timestamps: true }
+);
 
-export default mongoose.model('Post', postSchema);
+// Reuse if already compiled (hot-reload friendly)
+export default mongoose.models.Post || mongoose.model('Post', PostSchema);
