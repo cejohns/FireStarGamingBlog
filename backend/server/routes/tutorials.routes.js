@@ -1,11 +1,17 @@
 import { Router } from 'express';
-import * as ctrl from '../controllers/tutorials.controller.js';
-import { requireAuth } from '../middlewares/auth.js';
+import Tutorial from '../models/Tutorial.js';
+import { crudRouter } from '../utils/crudRouter.js';
 
 const r = Router();
-r.get('/', ctrl.list);
-r.get('/:slug', ctrl.getBySlug);
-r.post('/', requireAuth(['admin','author']), ctrl.create);
-r.patch('/:id', requireAuth(['admin','author']), ctrl.update);
-r.delete('/:id', requireAuth(['admin']), ctrl.remove);
+
+// Public listing only returns published by default; admins can still POST/PUT/DELETE via auth.
+r.use(
+  '/',
+  crudRouter(Tutorial, {
+    listQuery: { status: 'published' },
+    sort: { publishedAt: -1, createdAt: -1 },
+    writable: true, // guarded inside crudRouter with requireAuth(['admin'])
+  })
+);
+
 export default r;

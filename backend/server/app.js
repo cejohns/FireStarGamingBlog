@@ -18,6 +18,9 @@ import tutorialsRoutes from './routes/tutorials.routes.js';
 import sourcesRoutes from './routes/sources.routes.js';
 import articlesRoutes from './routes/articles.routes.js';
 import newsRoutes from './routes/newsRoutes.js';
+import videosRoutes from './routes/videos.routes.js';
+import galleriesRoutes from './routes/galleries.routes.js';
+import uploadsRoutes from './routes/uploads.routes.js';
 
 import { startNewsCron, getCachedNews } from './jobs/newsIngest.js'; // keep only if this file exists
 //import newimport { startNewsCron, getCachedNews } from './jobs/newsIngest.js';sRoutes from './routes/newsRoutes.js'; // keep only if this file exists
@@ -41,6 +44,9 @@ app.use('/api/tutorials', tutorialsRoutes);
 app.use('/api/gaming-news', newsRoutes);
 app.use('/api/sources', sourcesRoutes);
 app.use('/api/articles', articlesRoutes);
+app.use('/api/videos', videosRoutes);
+app.use('/api/galleries', galleriesRoutes);
+app.use('/api/uploads', uploadsRoutes);
 
 // Health & root
 app.get('/healthz', (_req, res) => res.status(204).end());

@@ -1,11 +1,8 @@
+// backend/server/routes/reviews.routes.js
 import { Router } from 'express';
-import * as ctrl from '../controllers/reviews.controller.js';
-import { requireAuth } from '../middlewares/auth.js';
+import Review from '../models/Review.js';
+import { crudRouter } from '../utils/crudRouter.js';
 
 const r = Router();
-r.get('/', ctrl.list);
-r.get('/:slug', ctrl.getBySlug);
-r.post('/', requireAuth(['admin','author']), ctrl.create);
-r.patch('/:id', requireAuth(['admin','author']), ctrl.update);
-r.delete('/:id', requireAuth(['admin']), ctrl.remove);
+r.use('/', crudRouter(Review, { sort: { createdAt: -1 } }));
 export default r;
