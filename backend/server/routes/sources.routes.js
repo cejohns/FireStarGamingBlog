@@ -1,17 +1,7 @@
 import { Router } from 'express';
+import sources from '../config/sources.js';
 const r = Router();
 
-// GET /api/sources  (temporary stub)
-r.get('/', (_req, res) => {
-  res.json([
-    // put your real sources here later
-    { id: 'stub', name: 'Example Source', enabled: true }
-  ]);
-});
-
-// POST /api/sources (optional stub)
-r.post('/', (req, res) => {
-  res.status(201).json({ ok: true, received: req.body || {} });
-});
+r.get('/', (_req, res) => res.json(sources));
 
 export default r;

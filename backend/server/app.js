@@ -17,7 +17,10 @@ import reviewsRoutes from './routes/reviews.routes.js';
 import tutorialsRoutes from './routes/tutorials.routes.js';
 import sourcesRoutes from './routes/sources.routes.js';
 import articlesRoutes from './routes/articles.routes.js';
-import newsRoutes from './routes/newsRoutes.js'; // keep only if this file exists
+import newsRoutes from './routes/newsRoutes.js';
+
+import { startNewsCron, getCachedNews } from './jobs/newsIngest.js'; // keep only if this file exists
+//import newimport { startNewsCron, getCachedNews } from './jobs/newsIngest.js';sRoutes from './routes/newsRoutes.js'; // keep only if this file exists
 
 const app = express();
 
@@ -77,6 +80,10 @@ app.use('/api', (_req, res) => {
   res.status(404).json({ message: 'API route not found' });
 });
 
+app.get('/api/gaming-news-cached', (_req, res) => {
+  const items = getCachedNews();
+  res.json({ count: items.length, items });
+});
 // Error handler LAST
 app.use(errorHandler);
 

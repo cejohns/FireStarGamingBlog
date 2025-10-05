@@ -1,7 +1,7 @@
 // backend/server/index.js
 import http from 'http';
 import listEndpoints from 'express-list-endpoints';
-
+import { startNewsCron } from './jobs/newsIngest.js';
 import app from './app.js';
 import { connectDB } from './config/db.js';
 import config from './config/env.js';
@@ -13,6 +13,7 @@ async function start() {
     console.log('🚀 backend/server/index.js START from:', import.meta.url);
 
     await connectDB();
+    startNewsCron();
 
     // Probes (so we know which file is actually running)
     app.get('/__whoami', (_req, res) => {
