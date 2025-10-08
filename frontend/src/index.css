@@ -1,1 +1,52 @@
 @import "tailwindcss";
+
+/* brand tokens */
+:root {
+  --brand-pink: #ec4899;
+  --brand-ink: #0b0b0f;
+  --brand-surface: #ffffff;
+}
+:root.dark {
+  --brand-ink: #f6f7fb;
+  --brand-surface: #0f1115;
+}
+
+/* typography */
+html { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji"; }
+.h-display { font-family: Outfit, Inter, ui-sans-serif; letter-spacing: -0.02em; }
+
+/* utilities */
+.card {
+  @apply rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm;
+}
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-medium transition;
+}
+.btn-primary {
+  background: var(--brand-pink); color: white;
+}
+.btn-ghost {
+  @apply border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800;
+}
+.tag { @apply text-xs px-2 py-0.5 rounded-full border; }
+.tag-pill { @apply rounded-full; }
+
+
+/* Tailwind v4 entry is already: @import "tailwindcss"; */
+
+:root {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  --font-display: "Outfit", var(--font-sans);
+}
+
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}
+

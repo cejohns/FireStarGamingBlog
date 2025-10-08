@@ -1,17 +1,43 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FireStar Gaming</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Load Tailwind v4 CSS via regular <link> so @import is allowed -->
-    <link rel="stylesheet" href="/src/index.css" />
-  </head>
+  <!-- SEO -->
+  <title>FireStar Gaming</title>
+  <meta name="description" content="FireStar Gaming — fresh gaming news, reviews, tutorials, and community features." />
+
+  <!-- Social sharing -->
+  <meta property="og:title" content="FireStar Gaming" />
+  <meta property="og:description" content="Fresh gaming news, reviews, tutorials, and community features." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="http://localhost:5173/" />
+  <meta property="og:image" content="/social-card.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="FireStar Gaming" />
+  <meta name="twitter:description" content="Fresh gaming news, reviews, tutorials, and community features." />
+  <meta name="twitter:image" content="/social-card.png" />
+
+  <!-- PWA niceties (optional but good to have) -->
+  <meta name="theme-color" content="#ec4899" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+
+  <!-- Icons -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Color scheme hint -->
+  <meta name="color-scheme" content="dark light" />
+</head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
-

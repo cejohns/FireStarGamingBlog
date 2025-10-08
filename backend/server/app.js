@@ -21,6 +21,9 @@ import newsRoutes from './routes/newsRoutes.js';
 import videosRoutes from './routes/videos.routes.js';
 import galleriesRoutes from './routes/galleries.routes.js';
 import uploadsRoutes from './routes/uploads.routes.js';
+import techNewsRoutes from './routes/techNews.routes.js';
+import productsRoutes from './routes/products.routes.js';
+import releasesRoutes from './routes/releases.routes.js';
 
 import { startNewsCron, getCachedNews } from './jobs/newsIngest.js'; // keep only if this file exists
 //import newimport { startNewsCron, getCachedNews } from './jobs/newsIngest.js';sRoutes from './routes/newsRoutes.js'; // keep only if this file exists
@@ -47,6 +50,9 @@ app.use('/api/articles', articlesRoutes);
 app.use('/api/videos', videosRoutes);
 app.use('/api/galleries', galleriesRoutes);
 app.use('/api/uploads', uploadsRoutes);
+app.use('/api/tech-news', techNewsRoutes);
+app.use('/api/products', productsRoutes);
+app.use('/api/releases', releasesRoutes);
 
 // Health & root
 app.get('/healthz', (_req, res) => res.status(204).end());
@@ -90,6 +96,14 @@ app.get('/api/gaming-news-cached', (_req, res) => {
   const items = getCachedNews();
   res.json({ count: items.length, items });
 });
+
+// put this ABOVE your existing error handler
+app.use((err, req, res, _next) => {
+  console.error('🛑 Route error:', req.method, req.originalUrl);
+  console.error(err && err.stack ? err.stack : err);
+  res.status(500).json({ message: 'Internal Server Error' });
+});
+
 // Error handler LAST
 app.use(errorHandler);
 

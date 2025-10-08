@@ -12,6 +12,7 @@ export default {
   jwtExpiresIn: env('JWT_EXPIRES_IN', '7d'),
   rateLimitWindowMs: Number(env('RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000)),
   rateLimitMax: Number(env('RATE_LIMIT_MAX', 100)),
+  rawgApiKey: process.env.RAWG_API_KEY || '',
   uploadDir: env('UPLOAD_DIR', 'uploads'),
   maxUploadMb: Number(env('MAX_UPLOAD_MB', 10)),
   allowedImageTypes: env('ALLOWED_IMAGE_TYPES', 'image/jpeg,image/png,image/webp')
